@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Vigenère +/- Clé</title>
+    <style>
+        body {
+            font-family: monospace;
+            font-size: 14px;
+            margin: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        h1 {
+            text-align: center;
+        }
+        label {
+            display: block;
+            margin-top: 15px;
+            font-weight: bold;
+        }
+        textarea, input {
+            width: 100%;
+            padding: 10px;
+            font-family: monospace;
+            font-size: 14px;
+            border: 1px solid #999;
+            box-sizing: border-box;
+        }
+        textarea {
+            height: 80px;
+            resize: vertical;
+        }
+        input {
+            height: 40px;
+        }
+        .result {
+            margin-top: 15px;
+            padding: 15px;
+            background: #fff;
+            border: 2px solid #333;
+        }
+        .result h3 {
+            margin: 0 0 10px 0;
+        }
+        .result p {
+            word-wrap: break-word;
+            margin: 0;
+        }
+        #resultPlus {
+            background: #d4edda;
+            border-color: #28a745;
+        }
+        #resultMinus {
+            background: #fff3cd;
+            border-color: #ffc107;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Vigenère +/- Clé</h1>
+    
+    <label for="texte">Texte chiffré :</label>
+    <textarea id="texte" placeholder="Entrez le texte chiffré..."></textarea>
+    
+    <label for="cle">Clé :</label>
+    <input type="text" id="cle" placeholder="Ex: CLE ou LEC">
+    
+    <div class="result" id="resultPlus">
+        <h3>+ Clé (chiffrement)</h3>
+        <p id="outputPlus">...</p>
+    </div>
+    
+    <div class="result" id="resultMinus">
+        <h3>- Clé (déchiffrement)</h3>
+        <p id="outputMinus">...</p>
+    </div>
+</div>
+
+<script>
+function getShift(letter) {
+    return letter.toUpperCase().charCodeAt(0) - 65;
+}
+
+function calculate() {
+    const texte = document.getElementById('texte').value;
+    const cle = document.getElementById('cle').value.toUpperCase().replace(/[^A-Z]/g, '');
+    
+    if (!cle || cle.length === 0) {
+        document.getElementById('outputPlus').textContent = '...';
+        document.getElementById('outputMinus').textContent = '...';
+        return;
+    }
+    
+    let resultPlus = '';
+    let resultMinus = '';
+    let keyIndex = 0;
+    
+    for (let i = 0; i < texte.length; i++) {
+        const c = texte[i];
+        
+        if (c.match(/[a-zA-Z]/)) {
+            const isUpper = c === c.toUpperCase();
+            const val = c.toUpperCase().charCodeAt(0) - 65;
+            const shift = getShift(cle[keyIndex % cle.length]);
+            
+            const plusVal = (val + shift) % 26;
+            const minusVal = (val - shift + 26) % 26;
+            
+            const plusChar = String.fromCharCode(plusVal + 65);
+            const minusChar = String.fromCharCode(minusVal + 65);
+            
+            resultPlus += isUpper ? plusChar : plusChar.toLowerCase();
+            resultMinus += isUpper ? minusChar : minusChar.toLowerCase();
+            
+            keyIndex++;
+        } else {
+            resultPlus += c;
+            resultMinus += c;
+        }
+    }
+    
+    document.getElementById('outputPlus').textContent = resultPlus;
+    document.getElementById('outputMinus').textContent = resultMinus;
+}
+
+document.getElementById('texte').addEventListener('input', calculate);
+document.getElementById('cle').addEventListener('input', calculate);
+</script>
+
+</body>
+</html>
