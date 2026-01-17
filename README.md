@@ -6,6 +6,8 @@
 
 **Classical cipher cryptanalysis toolkit** — Break historical ciphers with statistical attacks.
 
+▶️ [Lancer l'application](index2.html)
+
 ![Screenshot](screenshot.png)
 
 ## 🚀 Features
@@ -46,5 +48,6 @@
 MIT
 
 ## 👤 Author
+
 
 **Eric PERRET** — [GitHub](https://github.com/ericperret)
