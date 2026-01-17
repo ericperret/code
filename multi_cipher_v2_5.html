@@ -1,0 +1,984 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>🔐 Multi-Cipher Cracker v2.5</title>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #0f0f23 0%, #1a1a3e 100%);
+            color: #ccc;
+            min-height: 100vh;
+        }
+        .container { max-width: 1100px; margin: 0 auto; }
+        h1 { text-align: center; color: #00ff88; text-shadow: 0 0 20px #00ff8855; font-size: 32px; margin-bottom: 5px; }
+        .version { text-align: center; color: #00ffff; font-size: 12px; margin-bottom: 5px; }
+        .subtitle { text-align: center; color: #666; margin-bottom: 25px; font-size: 12px; }
+        .new-badge { background: linear-gradient(45deg, #ff6b6b, #ffd93d); color: #000; padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: bold; margin-left: 5px; }
+        
+        label { display: block; margin-top: 15px; font-weight: bold; color: #00ff88; }
+        textarea, input[type="text"] { width: 100%; padding: 12px; font-family: 'Courier New', monospace; font-size: 14px; border: 2px solid #00ff88; background: #0a0a1a; color: #fff; border-radius: 8px; resize: vertical; }
+        textarea { height: 100px; }
+        textarea:focus, input:focus { outline: none; border-color: #00ffff; box-shadow: 0 0 15px #00ffff44; }
+        
+        .alert { padding: 15px; border-radius: 8px; margin: 15px 0; display: none; }
+        .alert-success { background: #0a3a0a; border: 2px solid #00ff88; color: #00ff88; }
+        .alert-warning { background: #3a3a0a; border: 2px solid #ffd700; color: #ffd700; }
+        .alert.show { display: block; }
+        
+        .section { background: #111122; border: 1px solid #333; border-radius: 12px; padding: 20px; margin: 20px 0; }
+        .section h2 { margin: 0 0 15px 0; color: #00ffff; font-size: 16px; border-bottom: 1px solid #333; padding-bottom: 10px; }
+        
+        .ic-box { background: linear-gradient(135deg, #1a2a4a 0%, #0a1a3a 100%); border: 2px solid #00ffff; border-radius: 10px; padding: 15px; margin: 15px 0; }
+        .ic-value { font-size: 28px; color: #00ffff; font-weight: bold; }
+        .ic-label { color: #888; font-size: 12px; }
+        .ic-interpretation { margin-top: 10px; padding: 8px; border-radius: 5px; font-size: 12px; }
+        .ic-interpretation.french { background: #003366; color: #66ccff; }
+        .ic-interpretation.english { background: #660033; color: #ff6699; }
+        .ic-interpretation.random { background: #333; color: #999; }
+        .ic-interpretation.cleartext { background: #003300; color: #00ff88; }
+        
+        .keylength-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 8px; margin-top: 10px; }
+        .keylength-item { background: #0a1a2a; border: 1px solid #333; border-radius: 5px; padding: 8px; text-align: center; cursor: pointer; transition: all 0.2s; }
+        .keylength-item:hover { border-color: #00ff88; transform: scale(1.05); }
+        .keylength-item.selected { border-color: #ffd700; background: #2a2a0a; }
+        .keylength-item.disabled { opacity: 0.3; cursor: not-allowed; pointer-events: none; }
+        .keylength-item .len { font-size: 18px; color: #00ffff; font-weight: bold; }
+        .keylength-item .pct { font-size: 10px; color: #888; }
+        .keylength-item .bar { height: 4px; background: #00ff88; border-radius: 2px; margin-top: 5px; }
+        
+        .cipher-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px; margin: 15px 0; }
+        .cipher-btn { padding: 12px 8px; font-family: 'Courier New', monospace; font-size: 11px; cursor: pointer; border: 2px solid #333; background: #111; color: #888; border-radius: 8px; transition: all 0.2s; text-align: center; position: relative; }
+        .cipher-btn:hover { border-color: #00ff88; color: #00ff88; }
+        .cipher-btn.active { border-color: #00ff88; background: #00ff8822; color: #00ff88; }
+        .cipher-btn .icon { font-size: 18px; display: block; margin-bottom: 5px; }
+        .cipher-btn .new-tag { position: absolute; top: -5px; right: -5px; background: #ff6b6b; color: #fff; font-size: 8px; padding: 2px 5px; border-radius: 8px; }
+        
+        .btn-row { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin: 20px 0; }
+        button { padding: 12px 25px; font-family: 'Courier New', monospace; font-size: 14px; cursor: pointer; border: 2px solid #00ff88; background: transparent; color: #00ff88; border-radius: 25px; transition: all 0.3s; }
+        button:hover { background: #00ff88; color: #0a0a1a; box-shadow: 0 0 20px #00ff8855; }
+        button:disabled { opacity: 0.5; cursor: not-allowed; }
+        .btn-mega { font-size: 20px; padding: 20px 40px; background: linear-gradient(45deg, #00ff88, #00ffff); color: #0a0a1a; border: none; font-weight: bold; animation: glow 2s infinite; }
+        .btn-mega:disabled { animation: none; }
+        @keyframes glow { 0%, 100% { box-shadow: 0 0 10px #00ff88; } 50% { box-shadow: 0 0 30px #00ff88, 0 0 50px #00ffff; } }
+        
+        .result-box { background: #0a0a15; border-left: 4px solid #00ff88; padding: 15px; margin: 10px 0; border-radius: 0 8px 8px 0; cursor: pointer; transition: all 0.2s; }
+        .result-box:hover { background: #151525; transform: translateX(5px); }
+        .result-box.winner { border-left-color: #ffd700; background: linear-gradient(90deg, #1a1a00 0%, #0a0a15 100%); }
+        .result-box.cleartext { border-left-color: #00ff88; background: linear-gradient(90deg, #0a2a0a 0%, #0a0a15 100%); }
+        .result-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 8px; }
+        .result-cipher { color: #00ffff; font-weight: bold; }
+        .result-key { color: #ff88ff; }
+        .result-score { color: #888; font-size: 12px; }
+        .result-text { color: #aaa; font-size: 13px; word-break: break-all; }
+        .result-words { color: #00ff88; font-size: 11px; margin-top: 5px; }
+        .lang-badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: bold; margin-left: 8px; }
+        .lang-fr { background: #0066cc; color: #fff; }
+        .lang-en { background: #cc3333; color: #fff; }
+        
+        .progress-container { margin: 15px 0; text-align: center; display: none; }
+        .progress-bar { width: 100%; height: 8px; background: #222; border-radius: 4px; overflow: hidden; margin: 10px 0; }
+        .progress-fill { height: 100%; background: linear-gradient(90deg, #00ff88, #00ffff); border-radius: 4px; transition: width 0.3s; width: 0%; }
+        .progress-text { color: #00ffff; font-size: 12px; }
+        
+        .manual-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 15px; }
+        .manual-grid label { margin: 0 0 5px 0; font-size: 12px; }
+        select { width: 100%; padding: 8px; font-family: 'Courier New', monospace; background: #0a0a1a; color: #fff; border: 1px solid #333; border-radius: 5px; }
+        
+        #results { max-height: 500px; overflow-y: auto; }
+        
+        .worker-status { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; color: #888; }
+        .worker-dot { width: 8px; height: 8px; border-radius: 50%; background: #00ff88; animation: pulse-dot 1s infinite; }
+        .worker-dot.working { background: #ffd700; }
+        @keyframes pulse-dot { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+        
+        .stats-box { display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 10px; margin: 15px 0; }
+        .stat-item { background: #0a1a2a; padding: 10px; border-radius: 8px; text-align: center; }
+        .stat-value { font-size: 18px; color: #00ffff; font-weight: bold; }
+        .stat-label { font-size: 10px; color: #666; }
+        
+        /* XOR Section */
+        .xor-section { background: linear-gradient(135deg, #1a1a3a 0%, #0a1a2a 100%); border: 2px solid #ff88ff; margin-top: 10px; }
+        .xor-section h2 { color: #ff88ff; }
+        .xor-input-row { display: flex; gap: 15px; align-items: flex-end; flex-wrap: wrap; }
+        .xor-input-row > div { flex: 1; min-width: 200px; }
+        .xor-input-row input { height: 42px; }
+        .xor-hint { font-size: 11px; color: #888; margin-top: 5px; }
+        
+        /* Multi-worker status */
+        .workers-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 10px 0; }
+        .worker-box { background: #0a1a2a; border: 1px solid #333; border-radius: 8px; padding: 10px; text-align: center; }
+        .worker-box.active { border-color: #ffd700; background: #1a1a0a; }
+        .worker-box.done { border-color: #00ff88; background: #0a1a0a; }
+        .worker-name { font-size: 11px; color: #00ffff; font-weight: bold; margin-bottom: 5px; }
+        .worker-info { font-size: 10px; color: #888; }
+        .worker-cases { font-size: 12px; color: #ffd700; margin-top: 3px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>🔐 Multi-Cipher Cracker</h1>
+    <div class="version">v2.5 <span class="new-badge">3 Workers Parallèles</span></div>
+    <p class="subtitle">
+        <span class="worker-status">
+            <span class="worker-dot" id="workerDot"></span>
+            <span id="workerStatus">Prêt</span>
+        </span>
+    </p>
+    
+    <label for="texte">Texte chiffré :</label>
+    <textarea id="texte" placeholder="Collez votre texte chiffré ici..." oninput="onTextChange()"></textarea>
+    
+    <div class="alert alert-success" id="alertCleartext">
+        ✅ <b>Texte déjà lisible!</b> Score: <span id="cleartextScore">0</span>% - Pas besoin de déchiffrement.
+    </div>
+    <div class="alert alert-warning" id="alertNoKeys">
+        ⚠️ <b>Analyse incertaine.</b> Aucune longueur de clé probable (>1%).
+    </div>
+    
+    <div class="section">
+        <h2>📊 Analyse du texte</h2>
+        <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 20px;">
+            <div class="ic-box">
+                <div class="ic-label">Indice de Coïncidence</div>
+                <div class="ic-value" id="icValue">-</div>
+                <div class="ic-interpretation" id="icInterpretation">Entrez du texte...</div>
+            </div>
+            <div>
+                <div style="color: #888; font-size: 12px; margin-bottom: 10px;">Longueurs de clé probables (&gt;1%) :</div>
+                <div class="keylength-grid" id="keyLengthGrid">
+                    <div class="keylength-item disabled"><div class="len">-</div><div class="pct">En attente</div></div>
+                </div>
+            </div>
+        </div>
+        <div class="stats-box" id="statsBox" style="display:none;">
+            <div class="stat-item"><div class="stat-value" id="statLength">0</div><div class="stat-label">Caractères</div></div>
+            <div class="stat-item"><div class="stat-value" id="statLetters">0</div><div class="stat-label">Lettres</div></div>
+            <div class="stat-item"><div class="stat-value" id="statClearScore">0%</div><div class="stat-label">Score brut</div></div>
+        </div>
+    </div>
+    
+    <div class="section">
+        <h2>🎯 Chiffrements</h2>
+        <div class="cipher-grid">
+            <div class="cipher-btn active" data-cipher="caesar" onclick="toggleCipher(this)"><span class="icon">🔄</span>César</div>
+            <div class="cipher-btn active" data-cipher="vigenere" onclick="toggleCipher(this)"><span class="icon">🔑</span>Vigenère</div>
+            <div class="cipher-btn active" data-cipher="atbash" onclick="toggleCipher(this)"><span class="icon">🔀</span>Atbash</div>
+            <div class="cipher-btn active" data-cipher="affine" onclick="toggleCipher(this)"><span class="icon">✖️</span>Affine</div>
+            <div class="cipher-btn active" data-cipher="beaufort" onclick="toggleCipher(this)"><span class="icon">⚓</span>Beaufort</div>
+            <div class="cipher-btn active" data-cipher="autokey" onclick="toggleCipher(this)"><span class="icon">🔗</span>Autokey<span class="new-tag">v2</span></div>
+            <div class="cipher-btn active" data-cipher="playfair" onclick="toggleCipher(this)"><span class="icon">🎲</span>Playfair<span class="new-tag">v2</span></div>
+            <div class="cipher-btn" data-cipher="railfence" onclick="toggleCipher(this)"><span class="icon">🚃</span>Rail Fence</div>
+            <div class="cipher-btn" data-cipher="columnar" onclick="toggleCipher(this)"><span class="icon">📊</span>Colonnes</div>
+            <div class="cipher-btn" data-cipher="reverse" onclick="toggleCipher(this)"><span class="icon">↩️</span>Reverse</div>
+            <div class="cipher-btn active" data-cipher="cascade" onclick="toggleCipher(this)"><span class="icon">⛓️</span>CASCADE</div>
+            <div class="cipher-btn" data-cipher="xorbase64" onclick="toggleCipher(this)"><span class="icon">⊕</span>XOR+B64<span class="new-tag">NEW</span></div>
+        </div>
+    </div>
+    
+    <!-- XOR Section -->
+    <div class="section xor-section" id="xorSection" style="display:none;">
+        <h2>⊕ Options XOR / Base64</h2>
+        <div class="xor-input-row">
+            <div>
+                <label style="margin-top:0;">Clé XOR (optionnel)</label>
+                <input type="text" id="xorKey" placeholder="Laisser vide pour attaque auto">
+                <div class="xor-hint">Si connue, saisir la clé pour déchiffrement direct</div>
+            </div>
+            <div>
+                <label style="margin-top:0;">Longueur clé (auto)</label>
+                <select id="xorKeyLength">
+                    <option value="auto" selected>Auto-détection</option>
+                    <option value="4">4</option>
+                    <option value="5">5</option>
+                    <option value="6">6</option>
+                    <option value="7">7</option>
+                    <option value="8">8</option>
+                    <option value="9">9</option>
+                    <option value="10">10</option>
+                    <option value="11">11</option>
+                    <option value="12">12</option>
+                    <option value="13">13</option>
+                    <option value="14">14</option>
+                    <option value="15">15</option>
+                    <option value="16">16</option>
+                </select>
+                <div class="xor-hint">Utilisé uniquement si clé non fournie</div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="btn-row">
+        <button class="btn-mega" id="crackBtn" onclick="crackAll()">🚀 CRACK!</button>
+    </div>
+    
+    <div class="section">
+        <h2>⚙️ Options</h2>
+        <div class="manual-grid">
+            <div>
+                <label>Longueur clé (Vigenère)</label>
+                <select id="keyLengthSelect">
+                    <option value="auto" selected>Auto</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                    <option value="5">5</option>
+                    <option value="6">6</option>
+                    <option value="7">7</option>
+                    <option value="8">8</option>
+                </select>
+            </div>
+            <div>
+                <label>Langue</label>
+                <select id="targetLang">
+                    <option value="both" selected>FR + EN</option>
+                    <option value="fr">Français</option>
+                    <option value="en">English</option>
+                </select>
+            </div>
+            <div>
+                <label>Max résultats</label>
+                <select id="maxResults">
+                    <option value="20">20</option>
+                    <option value="40" selected>40</option>
+                    <option value="80">80</option>
+                </select>
+            </div>
+            <div>
+                <label>Score min</label>
+                <select id="minScore">
+                    <option value="30">30%</option>
+                    <option value="40">40%</option>
+                    <option value="50" selected>50%</option>
+                    <option value="60">60%</option>
+                </select>
+            </div>
+        </div>
+    </div>
+    
+    <div class="btn-row">
+        <button onclick="clearResults()">🗑️ Effacer</button>
+    </div>
+    
+    <div class="progress-container" id="progressContainer">
+        <div class="progress-text" id="progressText">...</div>
+        <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+        <div class="workers-grid" id="workersGrid">
+            <div class="worker-box" id="workerVig">
+                <div class="worker-name">🔑 Vigenère</div>
+                <div class="worker-info" id="workerVigInfo">En attente</div>
+                <div class="worker-cases" id="workerVigCases">-</div>
+            </div>
+            <div class="worker-box" id="workerBeau">
+                <div class="worker-name">⚓ Beaufort</div>
+                <div class="worker-info" id="workerBeauInfo">En attente</div>
+                <div class="worker-cases" id="workerBeauCases">-</div>
+            </div>
+            <div class="worker-box" id="workerStd">
+                <div class="worker-name">🔧 Standard</div>
+                <div class="worker-info" id="workerStdInfo">En attente</div>
+                <div class="worker-cases" id="workerStdCases">-</div>
+            </div>
+        </div>
+    </div>
+    
+    <div id="results"></div>
+</div>
+
+<script>
+// ============================================================
+// CODE COMMUN POUR TOUS LES WORKERS
+// ============================================================
+const commonCode = `
+const FRENCH_WORDS = new Set(['le','la','les','un','une','des','du','de','au','aux','ce','cette','ces','cet','mon','ma','mes','ton','ta','tes','son','sa','ses','notre','nos','votre','vos','leur','leurs','je','tu','il','elle','on','nous','vous','ils','elles','me','te','se','lui','eux','moi','toi','qui','que','quoi','dont','ou','a','en','dans','sur','sous','avec','sans','pour','par','chez','vers','entre','contre','devant','derriere','depuis','pendant','avant','apres','et','mais','donc','or','ni','car','si','comme','quand','lorsque','puisque','parce','ne','pas','plus','moins','tres','bien','mal','peu','beaucoup','trop','assez','aussi','toujours','jamais','souvent','parfois','encore','deja','maintenant','hier','demain','ici','oui','non','peut','etre','vraiment','comment','pourquoi','combien','suis','es','est','sommes','etes','sont','etais','etait','serai','sera','seront','ai','as','avons','avez','ont','avais','avait','aurai','aura','auront','faire','fais','fait','faisons','faites','font','fera','dire','dis','dit','dira','aller','vais','vas','va','allons','allez','vont','ira','voir','vois','voit','verra','savoir','sais','sait','savons','savent','pouvoir','peux','peut','pouvons','peuvent','vouloir','veux','veut','voulons','veulent','venir','viens','vient','venons','viennent','prendre','prends','prend','prenons','prennent','mettre','mets','met','mettons','mettent','falloir','faut','devoir','dois','doit','devons','doivent','croire','crois','croit','homme','femme','enfant','monde','temps','jour','nuit','annee','mois','semaine','heure','moment','fois','vie','mort','chose','cas','part','pays','ville','rue','maison','place','point','coup','main','tete','coeur','corps','oeil','yeux','voix','nom','mot','lettre','livre','histoire','question','reponse','raison','idee','probleme','solution','travail','argent','prix','eau','feu','terre','air','ciel','soleil','lune','mer','montagne','arbre','foret','pere','mere','fils','fille','frere','soeur','ami','amie','famille','groupe','roi','reine','prince','guerre','paix','pouvoir','force','ordre','loi','droit','secret','message','code','cle','porte','chemin','route','fin','debut','milieu','soir','matin','present','passe','bon','bonne','mauvais','grand','grande','petit','petite','beau','belle','nouveau','nouvelle','vieux','vieille','jeune','premier','derniere','seul','seule','autre','meme','tout','tous','toute','toutes','vrai','faux','possible','facile','difficile','long','court','haut','bas','blanc','noir','rouge','bleu','vert','jaune','deux','trois','quatre','cinq','six','sept','huit','neuf','dix','cent','mille']);
+const ENGLISH_WORDS = new Set(['brown','dog','jump','above','lazy','dog','cat','the','a','an','this','that','these','those','my','your','his','her','its','our','their','some','any','no','every','each','all','both','few','many','much','most','other','i','you','he','she','it','we','they','him','us','them','who','what','which','on','at','to','for','of','with','by','from','up','down','into','out','over','under','about','above','below','between','through','during','before','after','and','or','but','so','yet','because','although','while','when','where','if','not','very','well','also','just','only','even','still','already','always','never','often','sometimes','really','quite','here','there','now','then','today','yes','be','am','is','are','was','were','been','being','have','has','had','having','do','does','did','doing','done','say','says','said','get','gets','got','make','makes','made','go','goes','went','gone','know','knows','knew','known','take','takes','took','taken','see','sees','saw','seen','come','comes','came','think','thinks','thought','look','looks','looked','want','wants','wanted','give','gives','gave','given','use','uses','used','find','finds','found','tell','tells','told','ask','asks','asked','work','works','worked','time','year','people','way','day','man','woman','child','world','life','hand','part','place','case','week','number','night','point','home','water','room','mother','area','money','story','fact','month','right','book','eye','job','word','business','side','kind','head','house','friend','father','power','hour','game','line','end','member','law','car','city','name','team','good','new','first','last','long','great','little','own','old','big','high','different','small','large','next','young','important','public','bad','same','able','one','two','three','four','five','six','seven','eight','nine','ten','hundred','thousand','key','code','secret','message','king','queen','war','peace','love','death','fire','light','dark','white','black','red']);
+const FRENCH_FREQ = {E:14.7,A:7.6,I:7.5,S:7.9,N:7.1,R:6.6,T:7.2,O:5.4,L:5.5,U:6.3,D:3.7,C:3.3,M:3.0,P:3.0};
+const ENGLISH_FREQ = {E:12.7,T:9.1,A:8.2,O:7.5,I:7.0,N:6.7,S:6.3,H:6.1,R:6.0,D:4.3,L:4.0,C:2.8,U:2.8,M:2.4};
+
+const segCache=new Map();
+function segment(t,dict){const n=t.toLowerCase().replace(/[^a-z]/g,'');if(!n.length)return{w:[],cov:0};const k=n.slice(0,30)+n.length+(dict===FRENCH_WORDS?'F':'E');if(segCache.has(k))return segCache.get(k);const len=n.length;const dp=new Array(len+1).fill(0);const par=new Array(len+1).fill(-1);for(let i=1;i<=len;i++){dp[i]=dp[i-1];par[i]=i-1;for(let l=2;l<=Math.min(i,10);l++){const w=n.substring(i-l,i);if(dict.has(w)&&dp[i-l]+l*l>dp[i]){dp[i]=dp[i-l]+l*l;par[i]=i-l;}}}const words=[];let p=len,cov=0;while(p>0){const pr=par[p];const l=p-pr;if(l>1){const w=n.substring(pr,p);if(dict.has(w)){words.unshift(w);cov+=l;}}p=pr;}const res={w:words,cov:len>0?(cov/len)*100:0};if(segCache.size>300)segCache.clear();segCache.set(k,res);return res;}
+
+function getFreq(t){const f={};let tot=0;for(const c of t.toUpperCase())if(c>='A'&&c<='Z'){f[c]=(f[c]||0)+1;tot++;}if(!tot)return{};for(const c in f)f[c]=(f[c]/tot)*100;return f;}
+function freqScore(t,tgt){const f=getFreq(t);let d=0;for(const l in tgt)d+=Math.abs((tgt[l]||0)-(f[l]||0));return Math.max(0,100-d);}
+function score(t,lang='both'){const frF=freqScore(t,FRENCH_FREQ),enF=freqScore(t,ENGLISH_FREQ);let frD=0,enD=0,frW=[],enW=[];if(frF>40||lang==='fr'){const s=segment(t,FRENCH_WORDS);frD=s.cov;frW=s.w;}if(enF>40||lang==='en'){const s=segment(t,ENGLISH_WORDS);enD=s.cov;enW=s.w;}const frS=frD*0.7+frF*0.3,enS=enD*0.7+enF*0.3;if(lang==='fr')return{score:frS,lang:'fr',dict:frD,freq:frF,words:frW};if(lang==='en')return{score:enS,lang:'en',dict:enD,freq:enF,words:enW};return frS>enS?{score:frS,lang:'fr',dict:frD,freq:frF,words:frW}:{score:enS,lang:'en',dict:enD,freq:enF,words:enW};}
+
+function vigenere(t,key,d=true){let r='',ki=0;const k=key.toUpperCase();for(const c of t){if(/[a-zA-Z]/.test(c)){const b=c<='Z'?65:97;const s=k.charCodeAt(ki%k.length)-65;const v=c.charCodeAt(0)-b;const nv=d?(v-s+26)%26:(v+s)%26;r+=String.fromCharCode(nv+b);ki++;}else r+=c;}return r;}
+function beaufort(t,key){let r='',ki=0;const k=key.toUpperCase();for(const c of t){if(/[a-zA-Z]/.test(c)){const b=c<='Z'?65:97;const kv=k.charCodeAt(ki%k.length)-65;const tv=c.charCodeAt(0)-b;r+=String.fromCharCode((kv-tv+26)%26+b);ki++;}else r+=c;}return r;}
+
+function* vigenereKeys(len, text) {
+    if (len <= 4) {
+        function* gen(curr) {
+            if (curr.length === len) { yield curr; return; }
+            for (let i = 0; i < 26; i++) yield* gen(curr + String.fromCharCode(65 + i));
+        }
+        yield* gen("");
+        return;
+    }
+
+    const cl = text.toUpperCase().replace(/[^A-Z]/g, '');
+    const cols = [];
+    for (let i = 0; i < len; i++) {
+        let c = '';
+        for (let j = i; j < cl.length; j += len) c += cl[j];
+        cols.push(c);
+    }
+    
+    const best = cols.map(col => {
+        const sc = [];
+        for (let s = 0; s < 26; s++) {
+            let d = '';
+            for (const c of col) d += String.fromCharCode(((c.charCodeAt(0) - 65 - s + 26) % 26) + 65);
+            sc.push({
+                l: String.fromCharCode(65 + s),
+                s: Math.max(freqScore(d, FRENCH_FREQ), freqScore(d, ENGLISH_FREQ))
+            });
+        }
+        sc.sort((a, b) => b.s - a.s);
+        const n = len <= 4 ? 26 : (len <= 5 ? 12 : 3);
+        return sc.slice(0, n).map(x => x.l);
+    });
+
+    function* combos(arrs, pre = '') {
+        if (!arrs.length) { yield pre; return; }
+        for (const l of arrs[0]) yield* combos(arrs.slice(1), pre + l);
+    }
+    yield* combos(best);
+}
+`;
+
+// ============================================================
+// WORKER VIGENÈRE
+// ============================================================
+const vigenereWorkerCode = commonCode + `
+self.onmessage = function(e) {
+    const { action, text, options } = e.data;
+    if (action !== 'crack') return;
+    const { lang, minScore, keyLengths } = options;
+    let all = [];
+    let casesTotal = 0;
+    
+    for (const len of keyLengths) {
+        let count = 0;
+        for (const key of vigenereKeys(len, text)) {
+            casesTotal++;
+            const d = vigenere(text, key);
+            const sc = score(d, lang);
+            if (sc.score >= minScore) all.push({ cipher: 'Vigenère', key, text: d, ...sc });
+            count++;
+            if (count % 10000 === 0) self.postMessage({ action: 'progress', cipher: 'Vigenère L=' + len, cases: casesTotal });
+            if (count > 12000000) break;
+        }
+    }
+    
+    all.sort((a, b) => b.score - a.score);
+    self.postMessage({ action: 'results', results: all.slice(0, 50), finalCases: casesTotal });
+};
+`;
+
+// ============================================================
+// WORKER BEAUFORT
+// ============================================================
+const beaufortWorkerCode = commonCode + `
+self.onmessage = function(e) {
+    const { action, text, options } = e.data;
+    if (action !== 'crack') return;
+    const { lang, minScore, keyLengths } = options;
+    let all = [];
+    let casesTotal = 0;
+    
+    for (const len of keyLengths) {
+        let count = 0;
+        for (const key of vigenereKeys(len, text)) {
+            casesTotal++;
+            const d = beaufort(text, key);
+            const sc = score(d, lang);
+            if (sc.score >= minScore) all.push({ cipher: 'Beaufort', key, text: d, ...sc });
+            count++;
+            if (count % 10000 === 0) self.postMessage({ action: 'progress', cipher: 'Beaufort L=' + len, cases: casesTotal });
+            if (count > 12000000) break;
+        }
+    }
+    
+    all.sort((a, b) => b.score - a.score);
+    self.postMessage({ action: 'results', results: all.slice(0, 50), finalCases: casesTotal });
+};
+`;
+
+// ============================================================
+// WORKER STANDARD (autres ciphers)
+// ============================================================
+const standardWorkerCode = commonCode + `
+const COPRIME = [1,3,5,7,9,11,15,17,19,21,23,25];
+const MOD_INV = {1:1,3:9,5:21,7:15,9:3,11:19,15:7,17:23,19:11,21:5,23:17,25:25};
+const KEYWORDS = ['TRESOR'];
+
+const FRENCH_BYTE_FREQ = {
+    32: 17.0, 101: 14.7, 97: 7.6, 105: 7.5, 115: 7.9, 110: 7.1, 114: 6.6, 116: 7.2, 111: 5.4, 108: 5.5, 117: 6.3, 100: 3.7, 99: 3.3, 109: 3.0, 112: 3.0
+};
+
+function caesar(t,s,d=true){const sh=d?(26-s)%26:s;return t.replace(/[a-zA-Z]/g,c=>{const b=c<='Z'?65:97;return String.fromCharCode((c.charCodeAt(0)-b+sh)%26+b);});}
+function atbash(t){return t.replace(/[a-zA-Z]/g,c=>{const b=c<='Z'?65:97;return String.fromCharCode(b+25-(c.charCodeAt(0)-b));});}
+function affine(t,a,b,d=true){if(d){const ai=MOD_INV[a];return t.replace(/[a-zA-Z]/g,c=>{const bs=c<='Z'?65:97;const y=c.charCodeAt(0)-bs;return String.fromCharCode(((ai*(y-b+26))%26+26)%26+bs);});}return t.replace(/[a-zA-Z]/g,c=>{const bs=c<='Z'?65:97;const x=c.charCodeAt(0)-bs;return String.fromCharCode((a*x+b)%26+bs);});}
+function autokey(t,p){let r='',ks=p.toUpperCase(),ki=0;for(const c of t){if(/[a-zA-Z]/.test(c)){const b=c<='Z'?65:97;const s=ks.charCodeAt(ki)-65;const v=c.charCodeAt(0)-b;const d=(v-s+26)%26;const dc=String.fromCharCode(d+65);r+=b===65?dc:dc.toLowerCase();ks+=dc;ki++;}else r+=c;}return r;}
+function playfair(t,key){const g=[];const seen=new Set();const ku=key.toUpperCase().replace(/J/g,'I').replace(/[^A-Z]/g,'');for(const c of ku)if(!seen.has(c)){seen.add(c);g.push(c);}for(let i=0;i<26;i++){const c=String.fromCharCode(65+i);if(c!=='J'&&!seen.has(c)){seen.add(c);g.push(c);}}const find=(ch)=>{const c=ch==='J'?'I':ch;const idx=g.indexOf(c);return{r:Math.floor(idx/5),c:idx%5};};const cl=t.toUpperCase().replace(/[^A-Z]/g,'').replace(/J/g,'I');let pr='';for(let i=0;i<cl.length;i++){pr+=cl[i];if(i+1<cl.length&&cl[i]===cl[i+1])pr+='X';}if(pr.length%2)pr+='X';let r='';for(let i=0;i<pr.length;i+=2){const p1=find(pr[i]),p2=find(pr[i+1]);let n1,n2;if(p1.r===p2.r){n1=g[p1.r*5+(p1.c+4)%5];n2=g[p2.r*5+(p2.c+4)%5];}else if(p1.c===p2.c){n1=g[((p1.r+4)%5)*5+p1.c];n2=g[((p2.r+4)%5)*5+p2.c];}else{n1=g[p1.r*5+p2.c];n2=g[p2.r*5+p1.c];}r+=n1+n2;}return r;}
+function railfence(t,rails){const cl=t.replace(/[^a-zA-Z]/g,'');const n=cl.length;if(rails<2||rails>=n)return t;const rl=new Array(rails).fill(0);let rail=0,dir=1;for(let i=0;i<n;i++){rl[rail]++;rail+=dir;if(rail===0||rail===rails-1)dir=-dir;}const rt=[];let pos=0;for(let r=0;r<rails;r++){rt.push(cl.substring(pos,pos+rl[r]));pos+=rl[r];}const idx=new Array(rails).fill(0);let res='';rail=0;dir=1;for(let i=0;i<n;i++){res+=rt[rail][idx[rail]++];rail+=dir;if(rail===0||rail===rails-1)dir=-dir;}return res;}
+function columnar(t,w){const cl=t.replace(/[^a-zA-Z]/g,'');const n=cl.length;const rows=Math.ceil(n/w);const fc=n%w||w;let r='';for(let ro=0;ro<rows;ro++){for(let c=0;c<w;c++){const cLen=c<fc?rows:rows-1;const off=c<fc?c*rows:fc*rows+(c-fc)*(rows-1);if(ro<cLen)r+=cl[off+ro]||'';}}return r;}
+function reverse(t){return t.split('').reverse().join('');}
+
+function base64Decode(str) {
+    try {
+        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
+        let result = [];
+        str = str.replace(/[^A-Za-z0-9+/=]/g, '');
+        for (let i = 0; i < str.length; i += 4) {
+            const a = chars.indexOf(str[i]);
+            const b = chars.indexOf(str[i + 1]);
+            const c = chars.indexOf(str[i + 2]);
+            const d = chars.indexOf(str[i + 3]);
+            result.push((a << 2) | (b >> 4));
+            if (str[i + 2] !== '=') result.push(((b & 15) << 4) | (c >> 2));
+            if (str[i + 3] !== '=') result.push(((c & 3) << 6) | d);
+        }
+        return new Uint8Array(result);
+    } catch (e) { return null; }
+}
+function xorDecrypt(data, key) {
+    const keyBytes = typeof key === 'string' ? new Uint8Array([...key].map(c => c.charCodeAt(0))) : key;
+    const result = new Uint8Array(data.length);
+    for (let i = 0; i < data.length; i++) result[i] = data[i] ^ keyBytes[i % keyBytes.length];
+    return result;
+}
+function bytesToString(bytes) { let r = ''; for (let i = 0; i < bytes.length; i++) r += String.fromCharCode(bytes[i]); return r; }
+function scoreXorResult(bytes) {
+    let score = 0, printable = 0, letters = 0, spaces = 0;
+    for (let i = 0; i < bytes.length; i++) {
+        const b = bytes[i];
+        if (b >= 32 && b <= 126) { printable++; if ((b >= 65 && b <= 90) || (b >= 97 && b <= 122)) { letters++; score += 2; } else if (b === 32) { spaces++; score += 3; } else if ([44,46,39,33,63,58,59].includes(b)) score += 1; }
+        else if (b >= 192 && b <= 255) score += 1;
+        else score -= 5;
+    }
+    if (printable/bytes.length > 0.95) score += 20;
+    if (letters/bytes.length > 0.7 && letters/bytes.length < 0.9) score += 15;
+    if (spaces/bytes.length > 0.1 && spaces/bytes.length < 0.25) score += 10;
+    return score;
+}
+function findBestKeyByte(column) {
+    let bestByte = 0, bestScore = -Infinity;
+    for (let k = 0; k < 256; k++) {
+        let sc = 0;
+        for (let i = 0; i < column.length; i++) {
+            const dec = column[i] ^ k;
+            if (FRENCH_BYTE_FREQ[dec]) sc += FRENCH_BYTE_FREQ[dec];
+            if (dec >= 32 && dec <= 126) sc += 1; else if (dec < 32 || dec > 126) sc -= 10;
+        }
+        if (sc > bestScore) { bestScore = sc; bestByte = k; }
+    }
+    return bestByte;
+}
+function detectXorKeyLength(data, maxLen = 16) {
+    const results = [];
+    for (let keyLen = 1; keyLen <= Math.min(maxLen, Math.floor(data.length / 4)); keyLen++) {
+        let totalDist = 0, pairs = 0;
+        const numBlocks = Math.min(8, Math.floor(data.length / keyLen));
+        for (let i = 0; i < numBlocks - 1; i++) {
+            for (let j = i + 1; j < numBlocks; j++) {
+                let dist = 0;
+                for (let k = 0; k < keyLen; k++) { let xor = data[i*keyLen+k] ^ data[j*keyLen+k]; while(xor){dist+=xor&1;xor>>=1;} }
+                totalDist += dist; pairs++;
+            }
+        }
+        results.push({ len: keyLen, dist: pairs > 0 ? (totalDist / pairs) / keyLen : Infinity });
+    }
+    results.sort((a, b) => a.dist - b.dist);
+    return results.slice(0, 5).map(r => r.len);
+}
+function crackXorWithKeyLength(data, keyLen) {
+    const key = new Uint8Array(keyLen);
+    for (let i = 0; i < keyLen; i++) {
+        const column = [];
+        for (let j = i; j < data.length; j += keyLen) column.push(data[j]);
+        key[i] = findBestKeyByte(column);
+    }
+    return key;
+}
+function crackXor(text, knownKey, keyLengthHint, lang) {
+    const results = [];
+    const data = base64Decode(text.trim());
+    if (!data || data.length < 4) return results;
+    if (knownKey && knownKey.length > 0) {
+        const decrypted = xorDecrypt(data, knownKey);
+        const plaintext = bytesToString(decrypted);
+        const sc = score(plaintext, lang);
+        results.push({ cipher: 'XOR+Base64', key: 'Clé: "' + knownKey + '"', text: plaintext, ...sc });
+        return results;
+    }
+    let keyLengths = (keyLengthHint && keyLengthHint !== 'auto') ? [parseInt(keyLengthHint)] : detectXorKeyLength(data, 16);
+    for (const keyLen of keyLengths) {
+        const key = crackXorWithKeyLength(data, keyLen);
+        const decrypted = xorDecrypt(data, key);
+        const plaintext = bytesToString(decrypted);
+        const xorSc = scoreXorResult(decrypted);
+        if (xorSc > 0) {
+            const sc = score(plaintext, lang);
+            let keyStr = '', keyHex = '';
+            for (let i = 0; i < key.length; i++) {
+                keyStr += (key[i] >= 32 && key[i] <= 126) ? String.fromCharCode(key[i]) : '\\\\x' + key[i].toString(16).padStart(2,'0');
+                keyHex += key[i].toString(16).padStart(2,'0');
+            }
+            results.push({ cipher: 'XOR+Base64', key: '"' + keyStr + '" (0x' + keyHex + ')', text: plaintext, ...sc, xorScore: xorSc });
+        }
+    }
+    results.sort((a, b) => b.score - a.score);
+    return results.slice(0, 5);
+}
+
+self.onmessage = function(e) {
+    const { action, text, options, pendingResults } = e.data;
+    if (action !== 'crack') return;
+    const { ciphers, lang, minScore, xorKey, xorKeyLength } = options;
+    let all = [];
+    let casesTotal = 0;
+
+    for (const cipher of ciphers) {
+        self.postMessage({ action: 'progress', cipher, cases: casesTotal });
+        
+        if (cipher === 'caesar') { for (let s = 1; s < 26; s++) { casesTotal++; const d = caesar(text, s); const sc = score(d, lang); if (sc.score >= minScore) all.push({ cipher: 'César', key: 'ROT' + s, text: d, ...sc }); } }
+        else if (cipher === 'atbash') { casesTotal++; const d = atbash(text); const sc = score(d, lang); if (sc.score >= minScore) all.push({ cipher: 'Atbash', key: 'A↔Z', text: d, ...sc }); }
+        else if (cipher === 'reverse') { casesTotal++; const d = reverse(text); const sc = score(d, lang); if (sc.score >= minScore) all.push({ cipher: 'Reverse', key: '←', text: d, ...sc }); }
+        else if (cipher === 'affine') { for (const a of COPRIME) for (let b = 0; b < 26; b++) { if (a === 1 && b === 0) continue; casesTotal++; const d = affine(text, a, b); const sc = score(d, lang); if (sc.score >= minScore) all.push({ cipher: 'Affine', key: 'a=' + a + ',b=' + b, text: d, ...sc }); } }
+        else if (cipher === 'autokey') { for (const p of KEYWORDS.slice(0, 20)) { casesTotal++; const d = autokey(text, p); const sc = score(d, lang); if (sc.score >= minScore) all.push({ cipher: 'Autokey', key: p, text: d, ...sc }); } }
+        else if (cipher === 'playfair') { for (const k of KEYWORDS.slice(0, 20)) { casesTotal++; const d = playfair(text, k); const sc = score(d, lang); if (sc.score >= minScore) all.push({ cipher: 'Playfair', key: k, text: d, ...sc }); } }
+        else if (cipher === 'railfence') { for (let r = 2; r <= 10; r++) { casesTotal++; const d = railfence(text, r); const sc = score(d, lang); if (sc.score >= minScore) all.push({ cipher: 'Rail Fence', key: r + ' rails', text: d, ...sc }); } }
+        else if (cipher === 'columnar') { for (let w = 2; w <= 10; w++) { casesTotal++; const d = columnar(text, w); const sc = score(d, lang); if (sc.score >= minScore) all.push({ cipher: 'Colonnes', key: 'w=' + w, text: d, ...sc }); } }
+        else if (cipher === 'xorbase64') {
+            const xorResults = crackXor(text, xorKey, xorKeyLength, lang);
+            casesTotal += xorResults.length || 1;
+            for (const r of xorResults) { if (r.score >= minScore || (xorKey && xorKey.length > 0)) all.push(r); }
+        }
+        else if (cipher === 'cascade') {
+            // Cascade utilise les résultats des autres workers
+            const allRes = [...all, ...(pendingResults || [])];
+            const top = [...allRes].sort((a, b) => b.score - a.score).slice(0, 8);
+            for (const r of top) {
+                casesTotal++; const c1 = atbash(r.text); const s1 = score(c1, lang); if (s1.score > r.score && s1.score >= minScore) all.push({ cipher: r.cipher + ' → Atbash', key: r.key + ' → A↔Z', text: c1, ...s1 });
+                casesTotal++; const c2 = caesar(r.text, 13, false); const s2 = score(c2, lang); if (s2.score > r.score && s2.score >= minScore) all.push({ cipher: r.cipher + ' → ROT13', key: r.key + ' → 13', text: c2, ...s2 });
+                casesTotal++; const c3 = reverse(r.text); const s3 = score(c3, lang); if (s3.score > r.score && s3.score >= minScore) all.push({ cipher: r.cipher + ' → Reverse', key: r.key + ' → ←', text: c3, ...s3 });
+            }
+        }
+    }
+    
+    all.sort((a, b) => b.score - a.score);
+    self.postMessage({ action: 'results', results: all.slice(0, 50), finalCases: casesTotal });
+};
+`;
+
+// ============================================================
+// MAIN SCRIPT
+// ============================================================
+let workerVig = null;
+let workerBeau = null;
+let workerStd = null;
+let isWorking = false;
+let crackStartTime = 0;
+let pendingWorkers = 0;
+let allResults = [];
+let workerStats = { vig: { cases: 0, done: false }, beau: { cases: 0, done: false }, std: { cases: 0, done: false } };
+
+function initWorkers() {
+    // Worker Vigenère
+    const blobVig = new Blob([vigenereWorkerCode], { type: 'application/javascript' });
+    workerVig = new Worker(URL.createObjectURL(blobVig));
+    workerVig.onmessage = function(e) { handleWorkerMessage('vig', e.data); };
+    
+    // Worker Beaufort
+    const blobBeau = new Blob([beaufortWorkerCode], { type: 'application/javascript' });
+    workerBeau = new Worker(URL.createObjectURL(blobBeau));
+    workerBeau.onmessage = function(e) { handleWorkerMessage('beau', e.data); };
+    
+    // Worker Standard
+    const blobStd = new Blob([standardWorkerCode], { type: 'application/javascript' });
+    workerStd = new Worker(URL.createObjectURL(blobStd));
+    workerStd.onmessage = function(e) { handleWorkerMessage('std', e.data); };
+}
+
+function handleWorkerMessage(workerId, data) {
+    const { action, results, cipher, cases, finalCases } = data;
+    const elapsed = (Date.now() - crackStartTime) / 1000;
+    
+    if (action === 'progress') {
+        workerStats[workerId].cases = cases;
+        updateWorkerUI(workerId, cipher, cases, elapsed);
+        updateGlobalProgress();
+    } else if (action === 'results') {
+        workerStats[workerId].cases = finalCases;
+        workerStats[workerId].done = true;
+        allResults.push(...results);
+        pendingWorkers--;
+        
+        updateWorkerUI(workerId, 'Terminé', finalCases, elapsed, true);
+        updateGlobalProgress();
+        
+        if (pendingWorkers === 0) {
+            finishCracking();
+        }
+    }
+}
+
+function updateWorkerUI(workerId, info, cases, elapsed, done = false) {
+    const nameMap = { vig: 'Vig', beau: 'Beau', std: 'Std' };
+    const boxEl = document.getElementById('worker' + nameMap[workerId]);
+    const infoEl = document.getElementById('worker' + nameMap[workerId] + 'Info');
+    const casesEl = document.getElementById('worker' + nameMap[workerId] + 'Cases');
+    
+    boxEl.classList.toggle('active', !done);
+    boxEl.classList.toggle('done', done);
+    infoEl.textContent = info;
+    
+    const cps = elapsed > 0 ? Math.round(cases / elapsed) : 0;
+    const cpsStr = cps > 1000 ? (cps/1000).toFixed(1) + 'k' : cps;
+    casesEl.textContent = cases.toLocaleString() + ' — ' + cpsStr + '/s';
+}
+
+function updateGlobalProgress() {
+    const totalCases = workerStats.vig.cases + workerStats.beau.cases + workerStats.std.cases;
+    const doneCount = (workerStats.vig.done ? 1 : 0) + (workerStats.beau.done ? 1 : 0) + (workerStats.std.done ? 1 : 0);
+    const pct = Math.round((doneCount / 3) * 100);
+    
+    document.getElementById('progressFill').style.width = pct + '%';
+    
+    const elapsed = (Date.now() - crackStartTime) / 1000;
+    const cps = elapsed > 0 ? Math.round(totalCases / elapsed) : 0;
+    const cpsStr = cps > 1000 ? (cps/1000).toFixed(1) + 'k' : cps;
+    document.getElementById('progressText').textContent = `${doneCount}/3 workers terminés — ${totalCases.toLocaleString()} cas — ${cpsStr}/s`;
+}
+
+function finishCracking() {
+    const elapsed = (Date.now() - crackStartTime) / 1000;
+    const totalCases = workerStats.vig.cases + workerStats.beau.cases + workerStats.std.cases;
+    const cps = elapsed > 0 ? Math.round(totalCases / elapsed) : 0;
+    const cpsStr = cps > 1000 ? (cps/1000).toFixed(1) + 'k' : cps;
+    
+    // Dédupliquer et trier
+    allResults.sort((a, b) => b.score - a.score);
+    const seen = new Set();
+    const unique = allResults.filter(r => {
+        const k = r.text.slice(0, 80);
+        if (seen.has(k)) return false;
+        seen.add(k);
+        return true;
+    });
+    
+    const maxResults = parseInt(document.getElementById('maxResults').value);
+    displayResults(unique.slice(0, maxResults));
+    
+    setWorking(false);
+    document.getElementById('workerStatus').textContent = `Terminé (${totalCases.toLocaleString()} cas en ${elapsed.toFixed(1)}s — ${cpsStr}/s)`;
+}
+
+function setWorking(w) {
+    isWorking = w;
+    document.getElementById('crackBtn').disabled = w;
+    document.getElementById('workerDot').classList.toggle('working', w);
+    document.getElementById('workerStatus').textContent = w ? 'Analyse en parallèle...' : 'Prêt';
+    document.getElementById('progressContainer').style.display = w ? 'block' : 'none';
+    
+    if (w) {
+        crackStartTime = Date.now();
+        // Reset worker boxes
+        ['Vig', 'Beau', 'Std'].forEach(n => {
+            document.getElementById('worker' + n).classList.remove('active', 'done');
+            document.getElementById('worker' + n + 'Info').textContent = 'En attente';
+            document.getElementById('worker' + n + 'Cases').textContent = '-';
+        });
+    }
+}
+
+// ============================================================
+// TEXT ANALYSIS
+// ============================================================
+function calculateIC(text) {
+    const clean = text.toUpperCase().replace(/[^A-Z]/g, '');
+    if (clean.length < 2) return 0;
+    const freq = {};
+    for (const c of clean) freq[c] = (freq[c] || 0) + 1;
+    let sum = 0;
+    for (const c in freq) sum += freq[c] * (freq[c] - 1);
+    return sum / (clean.length * (clean.length - 1));
+}
+
+function analyzeKeyLength(text, maxLen = 20) {
+    const clean = text.toUpperCase().replace(/[^A-Z]/g, '');
+    if (clean.length < 20) return [];
+    const results = [];
+    for (let len = 2; len <= Math.min(maxLen, clean.length / 3); len++) {
+        let icSum = 0;
+        for (let i = 0; i < len; i++) {
+            let substr = '';
+            for (let j = i; j < clean.length; j += len) substr += clean[j];
+            icSum += calculateIC(substr);
+        }
+        results.push({ length: len, ic: icSum / len });
+    }
+    const target = 0.074;
+    results.forEach(r => r.diff = Math.abs(r.ic - target));
+    results.sort((a, b) => a.diff - b.diff);
+    const minDiff = results[0]?.diff || 1;
+    results.forEach(r => r.percentage = minDiff > 0 ? Math.max(0, 100 * (1 - (r.diff - minDiff) / 0.02)) : 100);
+    return results.sort((a, b) => b.percentage - a.percentage).slice(0, 10);
+}
+
+function quickScore(text) {
+    const clean = text.toLowerCase().replace(/[^a-z]/g, '');
+    if (clean.length < 10) return 0;
+    const common = ['le','la','les','de','du','des','un','une','et','en','que','qui','dans','pour','sur','avec','est','sont','il','elle','nous','vous','ils','ce','cette','the','and','is','to','of','in','it','you','that','was','for','on','are','with','as','be','at','have','this'];
+    let hits = 0;
+    for (const w of common) {
+        const regex = new RegExp('\\b' + w + '\\b', 'gi');
+        hits += (text.match(regex) || []).length;
+    }
+    return Math.min(100, hits * 5);
+}
+
+function onTextChange() {
+    const text = document.getElementById('texte').value;
+    
+    document.getElementById('alertCleartext').classList.remove('show');
+    document.getElementById('alertNoKeys').classList.remove('show');
+    
+    if (text.length < 10) {
+        document.getElementById('icValue').textContent = '-';
+        document.getElementById('icInterpretation').textContent = 'Entrez du texte...';
+        document.getElementById('icInterpretation').className = 'ic-interpretation';
+        document.getElementById('keyLengthGrid').innerHTML = '<div class="keylength-item disabled"><div class="len">-</div><div class="pct">En attente</div></div>';
+        document.getElementById('statsBox').style.display = 'none';
+        return;
+    }
+    
+    document.getElementById('statsBox').style.display = 'grid';
+    document.getElementById('statLength').textContent = text.length;
+    document.getElementById('statLetters').textContent = text.replace(/[^a-zA-Z]/g, '').length;
+    
+    const rawScore = quickScore(text);
+    document.getElementById('statClearScore').textContent = rawScore.toFixed(0) + '%';
+    
+    if (rawScore > 60) {
+        document.getElementById('alertCleartext').classList.add('show');
+        document.getElementById('cleartextScore').textContent = rawScore.toFixed(0);
+    }
+    
+    const ic = calculateIC(text);
+    document.getElementById('icValue').textContent = ic.toFixed(4);
+    
+    const icInterp = document.getElementById('icInterpretation');
+    if (rawScore > 60) {
+        icInterp.className = 'ic-interpretation cleartext';
+        icInterp.innerHTML = '✅ Texte probablement lisible';
+    } else if (ic > 0.068) {
+        icInterp.className = 'ic-interpretation french';
+        icInterp.innerHTML = '🔤 IC élevé → Monoalphabétique';
+    } else if (ic > 0.050) {
+        icInterp.className = 'ic-interpretation english';
+        icInterp.innerHTML = '🔑 IC moyen → Polyalphabétique clé courte';
+    } else {
+        icInterp.className = 'ic-interpretation random';
+        icInterp.innerHTML = '🎲 IC bas → Polyalphabétique ou autre';
+    }
+    
+    const analysis = analyzeKeyLength(text);
+    const valid = analysis.filter(a => a.percentage >= 1);
+    
+    if (valid.length === 0 && rawScore < 60) {
+        document.getElementById('alertNoKeys').classList.add('show');
+    }
+    
+    const grid = document.getElementById('keyLengthGrid');
+    if (valid.length === 0) {
+        grid.innerHTML = '<div class="keylength-item disabled"><div class="len">-</div><div class="pct">Aucune</div></div>';
+    } else {
+        const maxPct = Math.max(...valid.map(a => a.percentage));
+        grid.innerHTML = valid.map((a, i) => `
+            <div class="keylength-item ${i === 0 ? 'selected' : ''}" onclick="selectKeyLength(${a.length})">
+                <div class="len">${a.length}</div>
+                <div class="pct">${a.percentage.toFixed(1)}%</div>
+                <div class="bar" style="width: ${(a.percentage / maxPct) * 100}%"></div>
+            </div>
+        `).join('');
+    }
+}
+
+function selectKeyLength(len) {
+    document.getElementById('keyLengthSelect').value = len;
+    document.querySelectorAll('.keylength-item').forEach(el => {
+        el.classList.toggle('selected', el.querySelector('.len').textContent == len);
+    });
+}
+
+// ============================================================
+// XOR UI Toggle
+// ============================================================
+function updateXorSection() {
+    const xorActive = document.querySelector('[data-cipher="xorbase64"]').classList.contains('active');
+    document.getElementById('xorSection').style.display = xorActive ? 'block' : 'none';
+}
+
+// ============================================================
+// CRACKING
+// ============================================================
+function getActiveCiphers() {
+    return Array.from(document.querySelectorAll('.cipher-btn.active')).map(b => b.dataset.cipher);
+}
+
+function toggleCipher(el) { 
+    el.classList.toggle('active'); 
+    updateXorSection();
+}
+
+function crackAll() {
+    const text = document.getElementById('texte').value;
+    if (!text.trim()) return alert('Entrez un texte');
+    if (isWorking) return;
+    
+    const ciphers = getActiveCiphers();
+    if (ciphers.length === 0) return alert('Sélectionnez au moins un chiffrement');
+    
+    const lang = document.getElementById('targetLang').value;
+    const minScore = parseInt(document.getElementById('minScore').value);
+    const keyLengthVal = document.getElementById('keyLengthSelect').value;
+    const xorKey = document.getElementById('xorKey').value.trim();
+    const xorKeyLength = document.getElementById('xorKeyLength').value;
+    
+    let keyLengths;
+    if (keyLengthVal === 'auto') {
+        const analysis = analyzeKeyLength(text);
+        keyLengths = analysis.filter(a => a.percentage >= 1).map(a => a.length);
+        if (keyLengths.length === 0) keyLengths = [3, 4, 5];
+    } else {
+        keyLengths = [parseInt(keyLengthVal)];
+    }
+    
+    // Reset
+    allResults = [];
+    pendingWorkers = 0;
+    workerStats = { vig: { cases: 0, done: false }, beau: { cases: 0, done: false }, std: { cases: 0, done: false } };
+    
+    setWorking(true);
+    document.getElementById('results').innerHTML = '';
+    
+    // Dispatcher les tâches aux workers appropriés
+    const hasVigenere = ciphers.includes('vigenere');
+    const hasBeaufort = ciphers.includes('beaufort');
+    const otherCiphers = ciphers.filter(c => c !== 'vigenere' && c !== 'beaufort');
+    
+    if (hasVigenere) {
+        pendingWorkers++;
+        document.getElementById('workerVig').classList.add('active');
+        document.getElementById('workerVigInfo').textContent = 'Démarrage...';
+        workerVig.postMessage({
+            action: 'crack',
+            text,
+            options: { lang, minScore, keyLengths }
+        });
+    } else {
+        workerStats.vig.done = true;
+        document.getElementById('workerVig').classList.add('done');
+        document.getElementById('workerVigInfo').textContent = 'Désactivé';
+        document.getElementById('workerVigCases').textContent = '-';
+    }
+    
+    if (hasBeaufort) {
+        pendingWorkers++;
+        document.getElementById('workerBeau').classList.add('active');
+        document.getElementById('workerBeauInfo').textContent = 'Démarrage...';
+        workerBeau.postMessage({
+            action: 'crack',
+            text,
+            options: { lang, minScore, keyLengths }
+        });
+    } else {
+        workerStats.beau.done = true;
+        document.getElementById('workerBeau').classList.add('done');
+        document.getElementById('workerBeauInfo').textContent = 'Désactivé';
+        document.getElementById('workerBeauCases').textContent = '-';
+    }
+    
+    if (otherCiphers.length > 0) {
+        pendingWorkers++;
+        document.getElementById('workerStd').classList.add('active');
+        document.getElementById('workerStdInfo').textContent = 'Démarrage...';
+        workerStd.postMessage({
+            action: 'crack',
+            text,
+            options: { ciphers: otherCiphers, lang, minScore, xorKey, xorKeyLength }
+        });
+    } else {
+        workerStats.std.done = true;
+        document.getElementById('workerStd').classList.add('done');
+        document.getElementById('workerStdInfo').textContent = 'Désactivé';
+        document.getElementById('workerStdCases').textContent = '-';
+    }
+    
+    // Si aucun worker n'est lancé
+    if (pendingWorkers === 0) {
+        setWorking(false);
+        alert('Aucun chiffrement sélectionné nécessitant un worker.');
+    }
+}
+
+function displayResults(results) {
+    if (results.length === 0) {
+        document.getElementById('results').innerHTML = '<div class="result-box">Aucun résultat ≥ ' + document.getElementById('minScore').value + '%</div>';
+        return;
+    }
+    
+    let html = '';
+    for (let i = 0; i < results.length; i++) {
+        const r = results[i];
+        const isWinner = i === 0;
+        const langBadge = `<span class="lang-badge lang-${r.lang}">${r.lang.toUpperCase()}</span>`;
+        const preview = r.text.substring(0, 100) + (r.text.length > 100 ? '...' : '');
+        const wordsHtml = r.words && r.words.length > 0 
+            ? `<div class="result-words">📖 ${r.words.slice(0, 8).join(' · ')}</div>` 
+            : '';
+        
+        html += `
+            <div class="result-box ${isWinner ? 'winner' : ''}" onclick="copyText(this)" data-text="${escapeAttr(r.text)}">
+                <div class="result-header">
+                    <span>
+                        ${isWinner ? '🏆 ' : '#' + (i+1) + ' '}
+                        <span class="result-cipher">${r.cipher}</span>
+                        ${langBadge}
+                        <span class="result-key">${r.key}</span>
+                    </span>
+                    <span class="result-score">${r.score.toFixed(1)}%</span>
+                </div>
+                <div class="result-text">${escapeHtml(preview)}</div>
+                ${wordsHtml}
+            </div>
+        `;
+    }
+    
+    document.getElementById('results').innerHTML = html;
+}
+
+function copyText(el) {
+    const text = el.dataset.text;
+    navigator.clipboard.writeText(text);
+    document.getElementById('workerStatus').textContent = '📋 Copié!';
+    setTimeout(() => { if (!isWorking) document.getElementById('workerStatus').textContent = 'Prêt'; }, 1500);
+}
+
+function escapeHtml(t) { const d = document.createElement('div'); d.textContent = t; return d.innerHTML; }
+function escapeAttr(t) { return t.replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+function clearResults() { document.getElementById('results').innerHTML = ''; }
+
+// Init
+initWorkers();
+</script>
+</body>
+</html>
