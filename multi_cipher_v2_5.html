@@ -124,7 +124,7 @@
 
 <div class="container">
     <h1>🔐 Multi-Cipher Cracker</h1>
-    <div class="version">v2.5 <span class="new-badge">3 Workers Parallèles</span></div>
+    <div class="version">v2.5 <span class="new-badge">3 Workers + Live Results</span></div>
     <p class="subtitle">
         <span class="worker-status">
             <span class="worker-dot" id="workerDot"></span>
@@ -624,6 +624,9 @@ function handleWorkerMessage(workerId, data) {
         updateWorkerUI(workerId, 'Terminé', finalCases, elapsed, true);
         updateGlobalProgress();
         
+        // Afficher les résultats en LIVE dès qu'un worker termine
+        displayLiveResults();
+        
         if (pendingWorkers === 0) {
             finishCracking();
         }
@@ -658,16 +661,11 @@ function updateGlobalProgress() {
     document.getElementById('progressText').textContent = `${doneCount}/3 workers terminés — ${totalCases.toLocaleString()} cas — ${cpsStr}/s`;
 }
 
-function finishCracking() {
-    const elapsed = (Date.now() - crackStartTime) / 1000;
-    const totalCases = workerStats.vig.cases + workerStats.beau.cases + workerStats.std.cases;
-    const cps = elapsed > 0 ? Math.round(totalCases / elapsed) : 0;
-    const cpsStr = cps > 1000 ? (cps/1000).toFixed(1) + 'k' : cps;
-    
-    // Dédupliquer et trier
-    allResults.sort((a, b) => b.score - a.score);
+function displayLiveResults() {
+    // Trier et dédupliquer les résultats actuels
+    const sorted = [...allResults].sort((a, b) => b.score - a.score);
     const seen = new Set();
-    const unique = allResults.filter(r => {
+    const unique = sorted.filter(r => {
         const k = r.text.slice(0, 80);
         if (seen.has(k)) return false;
         seen.add(k);
@@ -675,7 +673,14 @@ function finishCracking() {
     });
     
     const maxResults = parseInt(document.getElementById('maxResults').value);
-    displayResults(unique.slice(0, maxResults));
+    displayResults(unique.slice(0, maxResults), pendingWorkers > 0);
+}
+
+function finishCracking() {
+    const elapsed = (Date.now() - crackStartTime) / 1000;
+    const totalCases = workerStats.vig.cases + workerStats.beau.cases + workerStats.std.cases;
+    const cps = elapsed > 0 ? Math.round(totalCases / elapsed) : 0;
+    const cpsStr = cps > 1000 ? (cps/1000).toFixed(1) + 'k' : cps;
     
     setWorking(false);
     document.getElementById('workerStatus').textContent = `Terminé (${totalCases.toLocaleString()} cas en ${elapsed.toFixed(1)}s — ${cpsStr}/s)`;
@@ -930,13 +935,20 @@ function crackAll() {
     }
 }
 
-function displayResults(results) {
+function displayResults(results, isLive = false) {
     if (results.length === 0) {
-        document.getElementById('results').innerHTML = '<div class="result-box">Aucun résultat ≥ ' + document.getElementById('minScore').value + '%</div>';
+        document.getElementById('results').innerHTML = isLive 
+            ? '<div class="result-box" style="border-left-color: #ffd700;"><span style="color:#ffd700;">⏳ Recherche en cours...</span></div>'
+            : '<div class="result-box">Aucun résultat ≥ ' + document.getElementById('minScore').value + '%</div>';
         return;
     }
     
     let html = '';
+    
+    if (isLive) {
+        html += '<div class="result-box" style="border-left-color: #ffd700; background: linear-gradient(90deg, #1a1a0a 0%, #0a0a15 100%);"><span style="color:#ffd700;">⏳ Résultats partiels — Workers en cours...</span></div>';
+    }
+    
     for (let i = 0; i < results.length; i++) {
         const r = results[i];
         const isWinner = i === 0;
