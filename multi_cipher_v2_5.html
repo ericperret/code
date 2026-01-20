@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>🔐 Multi-Cipher Cracker v2.5</title>
+    <title>🔐 Multi-Cipher Cracker v2.5.1</title>
     <style>
         * { box-sizing: border-box; }
         body {
@@ -124,7 +124,7 @@
 
 <div class="container">
     <h1>🔐 Multi-Cipher Cracker</h1>
-    <div class="version">v2.5 <span class="new-badge">3 Workers + Live Results</span></div>
+    <div class="version">v2.5.1 <span class="new-badge">Force 2-3-4 + Live</span></div>
     <p class="subtitle">
         <span class="worker-status">
             <span class="worker-dot" id="workerDot"></span>
@@ -861,8 +861,9 @@ function crackAll() {
     let keyLengths;
     if (keyLengthVal === 'auto') {
         const analysis = analyzeKeyLength(text);
-        keyLengths = analysis.filter(a => a.percentage >= 1).map(a => a.length);
-        if (keyLengths.length === 0) keyLengths = [3, 4, 5];
+        const suggested = analysis.filter(a => a.percentage >= 1).map(a => a.length);
+        // TOUJOURS tester 2, 3, 4 : brute force rapide et l'analyse statistique peut les rater
+        keyLengths = [...new Set([2, 3, 4, ...suggested])].sort((a, b) => a - b);
     } else {
         keyLengths = [parseInt(keyLengthVal)];
     }
