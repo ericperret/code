@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>🔐 Multi-Cipher Cracker v2.5.1</title>
+    <title>🔐 Multi-Cipher Cracker v2.5.2</title>
     <style>
         * { box-sizing: border-box; }
         body {
@@ -115,6 +115,8 @@
         .worker-box { background: #0a1a2a; border: 1px solid #333; border-radius: 8px; padding: 10px; text-align: center; }
         .worker-box.active { border-color: #ffd700; background: #1a1a0a; }
         .worker-box.done { border-color: #00ff88; background: #0a1a0a; }
+        .worker-box.highscore { border-color: #ff6b6b; background: #2a0a1a; animation: pulse-high 0.5s ease; }
+        @keyframes pulse-high { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
         .worker-name { font-size: 11px; color: #00ffff; font-weight: bold; margin-bottom: 5px; }
         .worker-info { font-size: 10px; color: #888; }
         .worker-cases { font-size: 12px; color: #ffd700; margin-top: 3px; }
@@ -124,7 +126,7 @@
 
 <div class="container">
     <h1>🔐 Multi-Cipher Cracker</h1>
-    <div class="version">v2.5.1 <span class="new-badge">Force 2-3-4 + Live</span></div>
+    <div class="version">v2.5.2 <span class="new-badge">Live High Scores ≥70%</span></div>
     <p class="subtitle">
         <span class="worker-status">
             <span class="worker-dot" id="workerDot"></span>
@@ -356,12 +358,16 @@ function* vigenereKeys(len, text) {
 // WORKER VIGENÈRE
 // ============================================================
 const vigenereWorkerCode = commonCode + `
+const HIGH_SCORE_THRESHOLD = 70;
+let lastPartialTime = 0;
+
 self.onmessage = function(e) {
     const { action, text, options } = e.data;
     if (action !== 'crack') return;
     const { lang, minScore, keyLengths } = options;
     let all = [];
     let casesTotal = 0;
+    let bestScore = 0;
     
     for (const len of keyLengths) {
         let count = 0;
@@ -369,7 +375,18 @@ self.onmessage = function(e) {
             casesTotal++;
             const d = vigenere(text, key);
             const sc = score(d, lang);
-            if (sc.score >= minScore) all.push({ cipher: 'Vigenère', key, text: d, ...sc });
+            if (sc.score >= minScore) {
+                const result = { cipher: 'Vigenère', key, text: d, ...sc };
+                all.push(result);
+                
+                // Envoyer immédiatement les HIGH SCORES (throttle 200ms)
+                const now = Date.now();
+                if (sc.score >= HIGH_SCORE_THRESHOLD && sc.score > bestScore && (now - lastPartialTime > 200)) {
+                    bestScore = sc.score;
+                    lastPartialTime = now;
+                    self.postMessage({ action: 'partial', result, cases: casesTotal });
+                }
+            }
             count++;
             if (count % 10000 === 0) self.postMessage({ action: 'progress', cipher: 'Vigenère L=' + len, cases: casesTotal });
             if (count > 12000000) break;
@@ -385,12 +402,16 @@ self.onmessage = function(e) {
 // WORKER BEAUFORT
 // ============================================================
 const beaufortWorkerCode = commonCode + `
+const HIGH_SCORE_THRESHOLD = 70;
+let lastPartialTime = 0;
+
 self.onmessage = function(e) {
     const { action, text, options } = e.data;
     if (action !== 'crack') return;
     const { lang, minScore, keyLengths } = options;
     let all = [];
     let casesTotal = 0;
+    let bestScore = 0;
     
     for (const len of keyLengths) {
         let count = 0;
@@ -398,7 +419,18 @@ self.onmessage = function(e) {
             casesTotal++;
             const d = beaufort(text, key);
             const sc = score(d, lang);
-            if (sc.score >= minScore) all.push({ cipher: 'Beaufort', key, text: d, ...sc });
+            if (sc.score >= minScore) {
+                const result = { cipher: 'Beaufort', key, text: d, ...sc };
+                all.push(result);
+                
+                // Envoyer immédiatement les HIGH SCORES (throttle 200ms)
+                const now = Date.now();
+                if (sc.score >= HIGH_SCORE_THRESHOLD && sc.score > bestScore && (now - lastPartialTime > 200)) {
+                    bestScore = sc.score;
+                    lastPartialTime = now;
+                    self.postMessage({ action: 'partial', result, cases: casesTotal });
+                }
+            }
             count++;
             if (count % 10000 === 0) self.postMessage({ action: 'progress', cipher: 'Beaufort L=' + len, cases: casesTotal });
             if (count > 12000000) break;
@@ -608,20 +640,27 @@ function initWorkers() {
 }
 
 function handleWorkerMessage(workerId, data) {
-    const { action, results, cipher, cases, finalCases } = data;
+    const { action, results, result, cipher, cases, finalCases } = data;
     const elapsed = (Date.now() - crackStartTime) / 1000;
     
     if (action === 'progress') {
         workerStats[workerId].cases = cases;
         updateWorkerUI(workerId, cipher, cases, elapsed);
         updateGlobalProgress();
+    } else if (action === 'partial') {
+        // HIGH SCORE trouvé ! Ajouter et afficher immédiatement
+        workerStats[workerId].cases = cases;
+        allResults.push(result);
+        updateWorkerUI(workerId, `🎯 ${result.score.toFixed(0)}% ${result.key}`, cases, elapsed, false, true);
+        updateGlobalProgress();
+        displayLiveResults();
     } else if (action === 'results') {
         workerStats[workerId].cases = finalCases;
         workerStats[workerId].done = true;
         allResults.push(...results);
         pendingWorkers--;
         
-        updateWorkerUI(workerId, 'Terminé', finalCases, elapsed, true);
+        updateWorkerUI(workerId, 'Terminé', finalCases, elapsed, true, false);
         updateGlobalProgress();
         
         // Afficher les résultats en LIVE dès qu'un worker termine
@@ -633,14 +672,15 @@ function handleWorkerMessage(workerId, data) {
     }
 }
 
-function updateWorkerUI(workerId, info, cases, elapsed, done = false) {
+function updateWorkerUI(workerId, info, cases, elapsed, done = false, highscore = false) {
     const nameMap = { vig: 'Vig', beau: 'Beau', std: 'Std' };
     const boxEl = document.getElementById('worker' + nameMap[workerId]);
     const infoEl = document.getElementById('worker' + nameMap[workerId] + 'Info');
     const casesEl = document.getElementById('worker' + nameMap[workerId] + 'Cases');
     
-    boxEl.classList.toggle('active', !done);
+    boxEl.classList.toggle('active', !done && !highscore);
     boxEl.classList.toggle('done', done);
+    boxEl.classList.toggle('highscore', highscore && !done);
     infoEl.textContent = info;
     
     const cps = elapsed > 0 ? Math.round(cases / elapsed) : 0;
