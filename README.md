@@ -12,38 +12,53 @@
 
 Two standalone tools (one HTML file each, no library, no installation). User interfaces in French.
 
-| Tool | Launch | Documentation (French) |
-|---|---|---|
-| Multi-Cipher Cracker v3.1.1 | ▶️ **[multi_cipher_v3_1_1.html](https://ericperret.github.io/code/multi_cipher_v3_1_1.html)** | [multi_cipher_v3_1_documentation.odt](multi_cipher_v3_1_documentation.odt) · [v2 review (PDF)](<Revue & Documentation – Multi‑cipher Cracker V2.pdf>) |
-| Cryptographic battleship v6 | ▶️ **[bataille_navale_v6.html](https://ericperret.github.io/code/bataille_navale_v6.html)** | [BATAILLE NAVALE CRYPTOGRAPHIQUE V6.rtf](<BATAILLE NAVALE CRYPTOGRAPHIQUE V6.rtf>) |
+| Tool | Launch |
+|---|---|
+| Multi-Cipher Cracker v3.24.0 | ▶️ **[multi_cipher_v3_24_0.html](https://ericperret.github.io/code/multi_cipher_v3_24_0.html)** |
+| Cryptographic battleship v6 | ▶️ **[bataille_navale_v6.html](https://ericperret.github.io/code/bataille_navale_v6.html)** — manual (French): [BATAILLE NAVALE CRYPTOGRAPHIQUE V6.rtf](<BATAILLE NAVALE CRYPTOGRAPHIQUE V6.rtf>) |
 
 ---
 
 ## Multi-Cipher Cracker
 
-![Multi-Cipher Cracker v3.1.1](screenshot.png)
+![Multi-Cipher Cracker v3.24.0: Kryptos K4 section file and analysis](screenshot.png)
 
-Automatic cryptanalysis of classical ciphers: the tool analyses the ciphertext, estimates the cipher type, runs the matching attacks in parallel and ranks the candidate plaintexts by linguistic likelihood (French and English). Works offline: language models and word lists are embedded in the file in compressed form.
+Automatic cryptanalysis of classical ciphers: the tool analyses the ciphertext, preselects the plausible ciphers, runs the matching attacks in parallel and ranks the candidate plaintexts by linguistic likelihood (French and English). Works offline, including from `file://`: language models and word lists are embedded in the file in compressed form.
+
+### Usage
+
+1. Open the link above (Chrome / Edge 90+, Firefox 113+, Safari 16.4+) and wait for "Prêt" (ready).
+2. Paste the ciphertext, or a **section file** (template provided in the tool, opened on Kryptos K4), or pick an example.
+3. **DÉCODE**: simple encodings only. **CRACK**: cryptanalysis of the ticked ciphers. **STOP** halts everything; results already found stay displayed.
 
 ### Features
 
 | Feature | Description |
 |---|---|
-| Analysis | Index of coincidence, symbol counts, diagnosis of the likely type, likely key lengths (click = force) |
-| Ciphers | Caesar, Bi-ROT, Atbash, Affine, Reverse; Substitution (letters or symbols), Homophonic (Zodiac); Vigenère, Beaufort, variant Beaufort, Porta, Gronsfeld, Autokey; Playfair, Two-Square, Four-Square, Bifid, Hill 2×2; ADFGX / ADFGVX, Nihilist; Rail Fence, simple, inverse and double Columnar; XOR + Base64; Cascade |
-| Grid | Reading a text written in columns (period, spiral…), combined period + homophonic search, period chart, PNG export |
-| Symbol palette | Entry of symbol texts |
-| Results | Streamed as they come, best first, expandable results, STOP button |
-| Session | Session export / import, built-in examples (including Z408 and Z340) |
-| Self-test | 25 cases, also started by `?selftest` in the URL |
+| Section file | `[CIPHERTEXT]`, `[KNOWN_PLAINTEXT]` / `[KNOWN_COMBINATIONS]` ("Position a-b : WORD", base 0 and 1 tested), `[INFO]`, `#` lines; template that can be copied for an AI |
+| Analysis | Index of coincidence, symbol counts, diagnosis, likely key lengths (click = force) |
+| Preselection | Ciphers ticked automatically from the text: encoding, number groups, ADFGVX, symbols, length, IC, χ², digrams, known plaintext |
+| Direct decoders | Base64, Base32, hex, binary, decimal / octal ASCII, ROT13, ROT47, Atbash, reverse, executed Brainfuck; chained up to 3 layers; `FLAG{…}` flag brought to the top 🚩 |
+| Monoalphabetic | Caesar, Bi-ROT, Atbash, Affine, Reverse, Substitution (letters or symbols) |
+| Homophonic | Homophonic (Zodiac Z408 solved), symbol-words (nomenclator), null symbols, codes in number groups |
+| Polyalphabetic | Vigenère, Beaufort, variant Beaufort, Porta, Gronsfeld, Autokey, Quagmire I to IV; known key, hints, CTF list, word list, brute force 1 to 7 letters; known plaintext imposed per column |
+| Digraphic and fractionating | Playfair, Two-Square, Four-Square, Bifid, Hill 2×2, ADFGX / ADFGVX, Nihilist, Two 5×5 tables + seed (keyword or free) |
+| Transpositions | Rail Fence, simple, inverse and double Columnar; grid transposition (rotations, serpentines, diagonals, spiral, period, toroidal diagonal); 3D block transposition |
+| W segments | "W = separators" option (W and line breaks), per-segment view with known plaintext per column |
+| Views | Grid (PNG export), isometric SVG 3D block (hover, path, PNG export), period chart, symbol palette |
+| Results | Streamed, best first, expandable; continuous line + line split into words; minimum score 15 % |
+| Session | Export / import, built-in examples (including Z408 and Z340), "?" help on every control |
+| Self-test | Also started by `?selftest` in the URL |
 
 ### Method
 
-- Single score: mean quadgram log-likelihood, calibrated per language (0 % = random, 100 % = real text); pentagrams for homophonic ciphers; word list for refinement and tie-breaking.
-- Polyalphabetic ciphers: χ² per column then optimisation of each key letter; Playfair, Bifid, squares, double columnar, substitution: simulated annealing spread over a pool of Web Workers (logical threads − 1).
-- Data: complete FR/EN quadgrams, FR/EN pentagrams (11.9 M entries) decompressed on demand; Gutenberg corpora; FrequencyWords lists (H. Dave, CC BY-SA 4.0).
+- **Single score**: mean quadgram log-likelihood, calibrated per language (0 % = random, 100 % = real text); pentagrams and plaintext entropy for homophonic ciphers; word list for refinement and word splitting.
+- **Polyalphabetic**: χ² per column then optimisation of each key letter, plus whole keys tested; a key is kept only if the plaintext contains real words.
+- **Simulated annealing** (substitution, homophonic, Playfair, Bifid, squares, double columnar, two tables) spread over a pool of Web Workers (logical threads − 1); workload split into blocks (brute force, dictionary, widths, seeds); "∞" duration until STOP.
+- **Proof of reading and stop**: null model (random text with the language's letter frequencies); a plaintext is proven if the chance probability of its words × keys tested < 10⁻⁸; enumeration stops at the first proven plaintext, annealing is confirmed by two agreeing seeds.
+- **Data**: complete FR/EN quadgrams, FR/EN pentagrams (11.9 M entries) decompressed on demand; Gutenberg corpora (20 French, 27 English books); FrequencyWords 30,000-word lists (H. Dave, CC BY-SA 4.0); Z408 / Z340 (zodiackillerciphers.com, K. Gorman).
 
-Test set: [`jeu de test.txt`](<jeu de test.txt>) (one ciphertext per method, with its key).
+Test set: [`jeu de test.txt`](<jeu de test.txt>) (one ciphertext per method, with its key). The detailed version history (2.7 → 3.24.0) is in the header block of `multi_cipher_v3_24_0.html`.
 
 ---
 
@@ -64,17 +79,6 @@ Test set: [`jeu de test.txt`](<jeu de test.txt>) (one ciphertext per method, wit
 Only network access: the STUN servers, in WAN mode.
 
 ---
-
-## History
-
-| Version | Change |
-|---|---|
-| Multi-Cipher 3.1.1 | Worker pool = logical threads − 1 |
-| Multi-Cipher 3.1.0 | Pentagrams, Z408 solved, new ciphers, combined search, extended self-test |
-| Multi-Cipher 3.0.0 | Rewrite: single worker, cipher registry, unified score, Grid module |
-| Battleship 6 | Anti-replay |
-
-Multi-Cipher v2.5 has been removed from the repository (only the latest version is kept).
 
 ## License
 
