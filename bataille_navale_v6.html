@@ -14,6 +14,10 @@
                (SHA-256 de la grille, de l'horodatage et de deux nonces),
                protection anti-rejeu ; armes spéciales (bombe, torpille, radar)
   Notice     : BATAILLE NAVALE CRYPTOGRAPHIQUE V6.rtf
+  Historique : 6    2026-09-26  version anti-rejeu
+               ·    2026-10-18  charte graphique AZS (palette ardoise / ambre /
+                                cyan, bandeau AZS avec lien vers www.azs.fr) ;
+                                grilles réduites sur petit écran (tir recalé)
 ================================================================================
 -->
 <html lang="fr">
@@ -358,11 +362,48 @@ canvas.blink {
   font-family: monospace;
 }
 #session-info.active { color: #4f8; }
+/* ---------- charte AZS (www.azs.fr) ---------- */
+:root { color-scheme: dark; }
+body { font-family: system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif; background: #0e1418; color: #dfe7ec; }
+h2 { color: #dfe7ec; text-shadow: none; letter-spacing: -.3px; }
+#connect-box, #status { background: #18222a; border-color: #26343e; border-radius: 8px; }
+#connect-box h3, .grid-container h4, #side-panel h4, #fire-mode h4, #chat-box h4 { color: #a9b7bf; font: 600 11px ui-monospace,"SFMono-Regular",Menlo,Consolas,"Liberation Mono",monospace; letter-spacing: .06em; text-transform: uppercase; }
+.mode-btn { background: #141c22; border: 1px solid #26343e; color: #a9b7bf; }
+.mode-btn:hover { background: #1e2a33; border-color: #f0a63a; }
+.mode-btn.selected { background: rgba(240,166,58,.12); border-color: #f0a63a; color: #f0a63a; box-shadow: none; }
+#password-box { background: #141c22; border-color: #26343e; }
+#password-box label { color: #a9b7bf; }
+#password-box input, textarea, #chat-input, #chat-messages { background: #0e1418; border-color: #26343e; font-family: ui-monospace,"SFMono-Regular",Menlo,Consolas,"Liberation Mono",monospace; }
+#password-box input { color: #f0a63a; }
+#password-box .hint, #password-box .crypto-info, #session-info { color: #8fa1ad; }
+#password-box .crypto-info { background: #18222a; }
+textarea { color: #5cc8d6; }
+button { background: #f0a63a; border: 1px solid #f0a63a; color: #111; border-radius: 6px; transition: filter .15s; }
+button:hover { background: #f0a63a; box-shadow: none; filter: brightness(1.1); }
+.fire-btn { background: #141c22; border-color: #26343e; color: #dfe7ec; font-weight: 500; }
+.fire-btn:hover { background: #1e2a33; border-color: #f0a63a; filter: none; }
+.fire-btn.active { background: rgba(240,166,58,.14); border-color: #f0a63a; color: #f0a63a; box-shadow: none; }
+.grid-container, #side-panel { background: #18222a; border: 1px solid #26343e; border-radius: 8px; }
+#side-panel h4 { border-bottom-color: #26343e; }
+canvas { border: 1px solid #26343e; }
+.ship-status { background: #141c22; }
+.ship-ability { color: #f0a63a; }
+#fire-mode, #chat-box { background: #141c22; }
+#session-info.active { color: #3fb950; }
+canvas { max-width: 100%; height: auto; }
+.grid-container { max-width: 100%; }
+@media (max-width: 600px) { body { padding: 8px; } .grid-container { padding: 8px; } #side-panel { max-width: none; width: 100%; } }
+.azs-barre{display:flex;align-items:center;gap:12px;padding:8px 14px;margin:0 0 16px;background:#141c22;border:1px solid #26343e;border-radius:8px;font:600 11px/1 ui-monospace,"SFMono-Regular",Menlo,Consolas,"Liberation Mono",monospace;letter-spacing:.06em;text-transform:uppercase;color:#8fa1ad}
+.azs-barre .azs{font:800 20px/1 ui-monospace,"SFMono-Regular",Menlo,Consolas,"Liberation Mono",monospace;letter-spacing:-1px;text-transform:none;color:#f0a63a;text-decoration:none;padding-right:12px;border-right:1px solid #26343e}
+.azs-barre .azs:hover{color:#ffcf7a}
+.azs-barre a.fil{color:#8fa1ad;text-decoration:none}
+.azs-barre a.fil:hover{color:#f0a63a}
 </style>
 </head>
 <body>
 
 <div class="container">
+<nav class="azs-barre"><a class="azs" href="https://www.azs.fr/" title="www.azs.fr">AZS</a><a class="fil" href="https://github.com/ericperret/code">code</a></nav>
   <h2>⚓ Bataille Navale ⚓</h2>
 
   <div id="connect-box">
@@ -1055,8 +1096,10 @@ function showInfoOverlay(text, isDanger = false, isVictory = false) {
 enC.addEventListener("click", e => {
   if (!gameStarted || !myTurn || !dc || dc.readyState !== "open") return;
   
-  const x = Math.floor(e.offsetX / CELL);
-  const y = Math.floor(e.offsetY / CELL);
+  // grille éventuellement réduite à l'écran (téléphone) : retour aux pixels du canevas
+  const k = enC.width / enC.clientWidth;
+  const x = Math.floor(e.offsetX * k / CELL);
+  const y = Math.floor(e.offsetY * k / CELL);
   
   if (x < 0 || x >= SIZE || y < 0 || y >= SIZE) return;
   

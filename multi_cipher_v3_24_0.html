@@ -177,6 +177,9 @@
     ?selftest dans l'URL lance l'auto-test au chargement.
 --------------------------------------------------------------------------------
   HISTORIQUE
+    ·      2026-10-18  Charte graphique AZS : palette ardoise / ambre / cyan, bandeau AZS
+                       avec lien de retour vers www.azs.fr, polices système ; aucun
+                       changement fonctionnel (version inchangée).
     3.24.0 2026-10-03  Attaque « Deux tables, graine libre » : segments en profondeur, une
                        graine par colonne, blocs imposés par le clair connu, recuit sur la
                        table mélangée, 15 candidats distincts affichés.
@@ -439,10 +442,69 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
 .chip.cur { border-color: #ffd93d; color: #ffd93d; }
 [hidden] { display: none !important; }
 @media (max-width: 700px) { .ana { grid-template-columns: 1fr; } h1 { font-size: 24px; } }
+/* ---------- charte AZS (www.azs.fr) ---------- */
+:root { color-scheme: dark; }
+body { font-family: system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif; background: #0e1418; color: #dfe7ec; }
+textarea, input[type="text"], input[type="number"], .result-text, .result-key, .subst-preview, .grid-stream, pre, .gcell, .seg-view td, .stat-value, .ic-value, .version { font-family: ui-monospace,"SFMono-Regular",Menlo,Consolas,"Liberation Mono",monospace; }
+h1 { color: #dfe7ec; text-shadow: none; letter-spacing: -.4px; }
+.version { color: #8fa1ad; }
+.new-badge { background: transparent; border: 1px solid #f0a63a; color: #f0a63a; }
+.subtitle, .hint, .ic-label, .muted, .stat-label, .subst-cnt { color: #8fa1ad; }
+label, .lbl { color: #a9b7bf; }
+textarea, input[type="text"], input[type="number"] { border: 1px solid #26343e; background: #141c22; color: #dfe7ec; border-radius: 6px; }
+select { background: #141c22; border-color: #26343e; color: #dfe7ec; border-radius: 6px; }
+textarea:focus, input:focus, select:focus, button:focus-visible, .result-box:focus { border-color: #f0a63a; box-shadow: 0 0 0 2px rgba(240,166,58,.25); }
+.section { background: #18222a; border-color: #26343e; border-radius: 8px; box-shadow: 0 1px 0 rgba(255,255,255,.03) inset, 0 10px 30px -18px rgba(0,0,0,.8); }
+.section h2, .section > summary, details.section[open] > summary { color: #dfe7ec; border-bottom-color: #26343e; }
+.ic-box { background: #141c22; border: 1px solid #26343e; }
+.ic-value, .stat-value, .progress-text, .worker-name, .result-cipher { color: #5cc8d6; }
+.stat-item, .worker-box, .subst-cell, .gcell, .seg-view td { background: #141c22; }
+.chip { border-color: #33434e; background: #141c22; color: #dfe7ec; }
+.chip:hover { border-color: #f0a63a; background: rgba(240,166,58,.10); }
+.chip b, .worker-cases, #presetInfo { color: #f0a63a; }
+.chip.cur { border-color: #f0a63a; color: #f0a63a; }
+.cipher-btn { border: 1px solid #26343e; background: #141c22; color: #a9b7bf; border-radius: 6px; }
+.cipher-btn:hover { border-color: #f0a63a; color: #f0a63a; }
+.cipher-btn.active { border-color: #f0a63a; background: rgba(240,166,58,.12); color: #f0a63a; }
+button { border: 1px solid #33434e; color: #dfe7ec; border-radius: 6px; font-family: system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif; transition: border-color .15s, color .15s, filter .15s; }
+button:hover { background: transparent; border-color: #f0a63a; color: #f0a63a; }
+.btn-mega { background: #f0a63a; color: #111; border: none; border-radius: 8px; }
+.btn-mega:hover { background: #f0a63a; color: #111; filter: brightness(1.1); }
+.btn-mega.suggest { box-shadow: 0 0 0 3px #5cc8d6, 0 0 18px rgba(92,200,214,.45); }
+.btn-stop { border-color: #f85149; color: #f85149; }
+.result-box { background: #141c22; border-left-color: #5cc8d6; border-radius: 0 6px 6px 0; }
+.result-box:hover { background: #1e2a33; }
+.result-box.winner { border-left-color: #f0a63a; background: linear-gradient(90deg, rgba(240,166,58,.14) 0%, #141c22 100%); }
+.result-box.live { border-left-color: #f0a63a; color: #f0a63a; }
+.result-words { color: #3fb950; }
+.result-spaced, .subst-preview .spaced { color: #5cc8d6; border-top-color: #26343e; }
+.progress-bar { background: #141c22; }
+.progress-fill { background: linear-gradient(90deg, #5cc8d6, #f0a63a); }
+.worker-box { border-color: #26343e; }
+.worker-box.active { border-color: #f0a63a; background: rgba(240,166,58,.08); }
+.worker-box.done { border-color: #3fb950; }
+.worker-dot { background: #3fb950; }
+.worker-dot.working { background: #f0a63a; }
+.section-info, .subst-preview, .grid-stream, .template-box pre { background: #141c22; }
+.section-info { border-left-color: #5cc8d6; }
+.section-info b { color: #f0a63a; }
+.help { background: #26343e; color: #5cc8d6; }
+.help:hover::after, .help:focus::after { background: #141c22; border-color: #5cc8d6; color: #dfe7ec; }
+.template-box summary, .version-panel summary { color: #5cc8d6; }
+.version-panel td:first-child { color: #f0a63a; }
+.selftest td, .version-panel td, .template-box pre, .gcell, .seg-view td, .subst-cell { border-color: #26343e; }
+.subst-cell input[type="text"] { border-color: #33434e; }
+.ic-interpretation { background: #26343e; color: #dfe7ec; }
+.azs-barre{display:flex;align-items:center;gap:12px;padding:8px 14px;margin:0 0 16px;background:#141c22;border:1px solid #26343e;border-radius:8px;font:600 11px/1 ui-monospace,"SFMono-Regular",Menlo,Consolas,"Liberation Mono",monospace;letter-spacing:.06em;text-transform:uppercase;color:#8fa1ad}
+.azs-barre .azs{font:800 20px/1 ui-monospace,"SFMono-Regular",Menlo,Consolas,"Liberation Mono",monospace;letter-spacing:-1px;text-transform:none;color:#f0a63a;text-decoration:none;padding-right:12px;border-right:1px solid #26343e}
+.azs-barre .azs:hover{color:#ffcf7a}
+.azs-barre a.fil{color:#8fa1ad;text-decoration:none}
+.azs-barre a.fil:hover{color:#f0a63a}
 </style>
 </head>
 <body>
 <div class="container">
+<nav class="azs-barre"><a class="azs" href="https://www.azs.fr/" title="www.azs.fr">AZS</a><a class="fil" href="https://github.com/ericperret/code">code</a></nav>
     <h1>🔐 Multi-Cipher Cracker</h1>
     <div class="version">v3.24.0 <span class="new-badge">Graine libre en profondeur</span></div>
     <p class="subtitle"><span class="worker-status"><span class="worker-dot" id="workerDot"></span><span id="workerStatus" role="status">Chargement…</span></span></p>
@@ -3480,7 +3542,7 @@ const Grid = {
 const Cube = {
     key: null, cells: [], dims: [], hl: null,
     THEMES: {
-        dark: { bg: null, fill: '#0a1a2a', stroke: '#2a5a7a', sym: '#dddddd', num: '#00ffff', hlFill: '#ffd93d', hlSym: '#000000', empty: '#556677', label: '#00ff88', edge: '#3a4a6a', path: '#ff6b6b' },
+        dark: { bg: null, fill: '#141c22', stroke: '#33434e', sym: '#dfe7ec', num: '#5cc8d6', hlFill: '#ffd93d', hlSym: '#000000', empty: '#5a6b75', label: '#f0a63a', edge: '#3a4a55', path: '#ff6b6b' },
         light: { bg: '#ffffff', fill: '#f2f6fa', stroke: '#8899aa', sym: '#000000', num: '#0060a0', hlFill: '#ffd93d', hlSym: '#000000', empty: '#bbbbbb', label: '#006633', edge: '#aab4c0', path: '#d03030' }
     },
     // lettres du texte courant (comme l'attaque), liste des pavés remise à jour si le texte change

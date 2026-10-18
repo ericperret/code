@@ -86,4 +86,4 @@ MIT
 
 ## Auteur
 
-**Eric PERRET** — [GitHub](https://github.com/ericperret)
+**Eric PERRET** — [GitHub](https://github.com/ericperret) — [www.azs.fr](https://www.azs.fr/)
