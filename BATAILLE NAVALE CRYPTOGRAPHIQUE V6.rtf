@@ -1,0 +1,192 @@
+{\rtf1\fbidis\ansi\ansicpg1252\deff0\nouicompat\deflang1036{\fonttbl{\f0\fnil\fcharset1 Segoe UI Symbol;}{\f1\fnil Calibri;}{\f2\fnil\fcharset0 Calibri;}{\f3\fnil\fcharset1 Segoe UI Symbol;}{\f4\fnil\fcharset1 Cambria Math;}{\f5\fnil\fcharset1 Segoe UI Emoji;}{\f6\fnil\fcharset1 Segoe UI Emoji;}{\f7\fnil Cambria Math;}{\f8\fnil\fcharset0 Cambria Math;}}
+{\*\generator Riched20 10.0.19041}{\*\mmathPr\mmathFont4\mwrapIndent1440 }\viewkind4\uc1 
+\pard\sa200\sl276\slmult1\f0\fs22\lang12\u9875?\f1  \f2 BATAILLE NAVALE CRYPTOGRAPHIQUE\par
+Notice Utilisateur - Version 6\par
+\par
+\f3\u-10179?\u-8944?\f1  \f2 LE D\'c9FI : UN MOT DE PASSE INVIOLABLE\par
+Ose mettre ton mot de passe en jeu.\par
+Ton password est chiffr\'e9 par la position secr\'e8te de tes navires. Tant que ta flotte n'est pas enti\'e8rement coul\'e9e, personne ne peut le d\'e9chiffrer \f1\emdash  \f2 pas m\'eame en interceptant tous les messages.\par
+La formule magique :\par
+PASSWORD_CHIFFR\'c9 = Password \f4\u8853?\f1  \f2 SHA256(grille + timestamp + nonce1 + nonce2)\par
+Pourquoi c'est incassable ?\par
+\par
+\f3\u-10180?\u-8273?\f1  \f2 La grille = 17 cases sur 676 possibles \f4\u8594?\f1  \f2 la cl\'e9 de chiffrement\par
+\f5\u9201?\u-497?\f1  \f2 Timestamp = moment exact de connexion \f4\u8594?\f1  \f2 unique \'e0 chaque partie\par
+\f3\u-10180?\u-8270?\f1  \f2 Nonces = nombres al\'e9atoires \'e9chang\'e9s \f4\u8594?\f1  \f2 impossibles \'e0 pr\'e9dire\par
+\par
+Le seul moyen de d\'e9chiffrer : GAGNER LA PARTIE.\par
+\par
+\'ab Tu peux intercepter le password chiffr\'e9. Tu peux espionner tous les \'e9changes. Mais sans couler tous mes navires, tu n'auras jamais la cl\'e9. \'bb\par
+\par
+\par
+\f3\u-10179?\u-8576?\f1  \f2 D\'c9MARRAGE RAPIDE\par
+Connexion entre 2 joueurs\par
+\par
+Choisir le mode r\'e9seau :\par
+\par
+\f3\u-10180?\u-8224?\f1  \f2 LAN : m\'eame r\'e9seau WiFi/local (plus rapide)\par
+\f3\u-10180?\u-8432?\f1  \f2 WAN : via Internet (utilise les serveurs STUN de Google)\par
+\par
+\par
+Joueur 1 (h\'f4te) :\par
+\par
+Entre ton password secret (8 caract\'e8res max)\par
+Clique "Cr\'e9er partie"\par
+Copie le code qui appara\'eet dans "Code local"\par
+Envoie ce code \'e0 ton adversaire (SMS, Discord, mail...)\par
+\par
+\par
+Joueur 2 :\par
+\par
+Entre ton password secret\par
+Colle le code re\'e7u dans "Code re\'e7u"\par
+Clique "Appliquer code re\'e7u"\par
+Copie TON code local et renvoie-le au Joueur 1\par
+\par
+\par
+Joueur 1 :\par
+\par
+Colle la r\'e9ponse dans "Code re\'e7u"\par
+Clique "Appliquer code re\'e7u"\par
+\f3\u-10180?\u-8274?\f1  \f2 La partie commence !\par
+\par
+\par
+\par
+\par
+\f3\u-10180?\u-8273?\f1  \f2 R\'c8GLES DU JEU\par
+Ta flotte (5 navires, 17 cases)\par
+Navire\tab\tab Taille\tab\tab Pouvoir sp\'e9cial\par
+Porte-avions\tab 5\tab\f3\u-10179?\u-9053?\f1  \f2\lang1036\tab Bombe \tab (croix 5 cases)\par
+Cuirass\'e9\tab 4\par
+Croiseur\tab 3\f1\par
+\f2 Sous-marin\tab 3\tab\f3\u-10179?\u-9185?\f1  \f2\lang1036\tab Torpille (ligne enti\'e8re)\par
+Destroyer\tab 2\tab\f3\u-10179?\u-8991?\f2\lang1036\tab\f1  \f2 Radar \tab (distance)\par
+\par
+D\'e9roulement\par
+Les navires sont plac\'e9s automatiquement au hasard\par
+Grille de 26\'d726 cases (A-Z \'d7 1-26)\par
+Clique sur la grille ennemie pour tirer\par
+Touch\'e9 \f4\u8594?\f1  \f2 tu rejoues\par
+Rat\'e9 \f4\u8594?\f1  \f2 c'est au tour de l'adversaire\par
+Coul\'e9 \f4\u8594?\f1  \f2 les Cases adjacentes sont marqu\'e9es automatiquement\par
+\par
+\par
+\f3\u-10179?\u-9051?\f1  \f2 ARMES SP\'c9CIALES : RISQUE & R\'c9COMPENSE\par
+\par
+R\'e8gle d'or : chaque pouvoir a un prix.\par
+\par
+\f3\u-10179?\u-9185?\f1  \f2 Torpille (Sous-marin)\par
+\par
+Effet : Tire sur une ligne enti\'e8re (26 cases)\par
+Prix : R\'e9v\'e8le la ligne Y de ton sous-marin \'e0 l'ennemi\par
+Strat\'e9gie : Id\'e9al quand tu as rep\'e9r\'e9 un navire horizontal\par
+\par
+\f3\u-10179?\u-9053?\f1  \f2 Bombe (Porte-avions)\par
+\par
+Effet : Frappe en croix (5 cases : centre + 4 adjacentes)\par
+Prix : R\'e9v\'e8le la position centrale de ton porte-avions\par
+Strat\'e9gie : Pour achever un navire touch\'e9\par
+\par
+\f3\u-10179?\u-8991?\f1  \f2 Radar (Destroyer)\par
+\par
+Effet : Scan 3\'d73 cases + affiche la distance au destroyer ennemi\par
+Prix : R\'e9v\'e8le la position de ton destroyer\par
+Strat\'e9gie : Pour triangulation \f1\emdash  \f2 utilise 2-3 radars pour localiser\par
+\par
+\par
+\f3\u-10180?\u-8280?\f1  \f2 L\'c9GENDE DES COULEURS\par
+Couleur Signification\par
+\f6\u-10179?\u-8215?\f1  \f2 VertTon navire\par
+\f6\u-10179?\u-8216?\f1  \f2 JauneTouch\'e9\par
+\f6\u-10179?\u-8219?\f1  \f2 RougeCoul\'e9\par
+\f0\u11036?\f1  \f2 GrisRat\'e9 / Adjacent\par
+\f3\u-10179?\u-8907?\f1  \f2 BleuZone scann\'e9e (radar)\par
+\f6\u-10179?\u-8214?\f1  \f2 VioletPosition r\'e9v\'e9l\'e9e (effet miroir)\par
+\par
+\f3\u-10179?\u-9044?\f1  \f2 CHAT INT\'c9GR\'c9\par
+\par
+Messages limit\'e9s \'e0 8 caract\'e8res\par
+Pourquoi 8 ? Comme le password... co\'efncidence ? \f3\u-10179?\u-8689?\f2\par
+Exemples : "GG", "Bien jou\'e9", "Rat\'e9!", "Where?"\par
+\par
+\par
+\f3\u-10180?\u-8250?\f1  \f2 FIN DE PARTIE\par
+Tu gagnes ?\par
+\par
+\f3\u-10180?\u-8311?\f1  \f2 VICTOIRE !\par
+Le password ennemi est automatiquement d\'e9chiffr\'e9\par
+Il s'affiche \'e0 l'\'e9cran avec l'ID de session\par
+\par
+Tu perds ?\par
+\par
+\f3\u-10179?\u-9088?\f1  \f2 D\'c9FAITE...\par
+Ton password est r\'e9v\'e9l\'e9 \'e0 l'adversaire\par
+Ta grille \'e9tait la cl\'e9, il l'a reconstitu\'e9e en te coulant\par
+\par
+\f5\u-10179?\u-8479?\u-497?\f1  \f2 S\'c9CURIT\'c9 TECHNIQUE (pour les curieux)\par
+Pourquoi le chiffrement est-il s\'fbr ?\par
+Pas de transmission de la cl\'e9\par
+\par
+La cl\'e9 = position de tes navires\par
+Elle n'est JAMAIS envoy\'e9e directement\par
+L'adversaire la reconstitue uniquement en gagnant\par
+\par
+\par
+Anti-replay\par
+\par
+Timestamp : chaque partie a un moment unique\par
+Nonces : nombres al\'e9atoires \'e9chang\'e9s au handshake\par
+\f4\u8594?\f1  \f2 Impossible de rejouer une capture d'une ancienne partie\par
+\par
+\par
+SHA-256\par
+\par
+Hash cryptographique standard\par
+256 bits de s\'e9curit\'e9\par
+Irr\'e9versible\par
+\par
+\par
+\par
+\f5\u-10179?\u-8479?\u-497?\f7  \f2 S\'c9CURIT\'c9\f8  : \f2 LE\f8  \f2 D\'c9FI\f8  \f2 ABSOLU\par
+Ce\f8  \f2 qu'un\f8  \f2 tiers\f8  \f2 hostile\f8  \f2 avec\f8  \f2 des\f8  \f2 moyens\f8  \f2 modernes\f8  \f2 et\f8  \f2 illimit\'e9s\f8  \f2 peut\f8  \f2 intercepter\f8  :\f2\par
+\f0\u10003?\f7  \f2 Password\f8  \f2 chiffr\'e9\f8  : [\f2 8\f8  \f2 octets\f8  \f4\emdash\f7  \f2 du\f8  \f2 bruit\f8 ]\f2\par
+\f0\u10003?\f7  \f2 Timestamp\f8  : \f2 1706625432198\par
+\f0\u10003?\f7  \f2 Nonces\f8  : \f2 deux\f8  \f2 tableaux\f8  \f2 de\f8  \f2 8\f8  \f2 octets\f8  \f2 al\'e9atoires\par
+\f0\u10003?\f7  \f2 Tous\f8  \f2 les\f8  \f2 tirs\f8  \f2\'e9chang\'e9s\f8  \f2 pendant\f8  \f2 la\f8  \f2 partie\par
+\f0\u10003?\f7  \f2 Tous\f8  \f2 les\f8  \f2 r\'e9sultats\f8  (\f2 touch\'e9\f8 /\f2 rat\'e9\f8 /\f2 coul\'e9\f8 )\f2\par
+\f0\u10003?\f7  \f2 Tout\f8  \f2 le\f8  \f2 trafic\f8  \f2 WebRTC\f8 , \f2 chaque\f8  \f2 octet\par
+Ce\f8  \f2 qu'il\f8  \f2 peut\f8  \f2 en\f8  \f2 d\'e9duire\f8  :\f2\par
+RIEN\f8 .\f2\par
+\par
+Pourquoi\f8  ?\f2\par
+La\f8  \f2 cl\'e9\f8  \f2 de\f8  \f2 d\'e9chiffrement\f8  = \f2 la\f8  \f2 position\f8  \f2 exacte\f8  \f2 des\f8  \f2 17\f8  \f2 cases\f8  \f2 de\f8  \f2 la\f8  \f2 flotte\f8 .\f2\par
+Cette\f8  \f2 information\f8  \f2 n'est\f8  \f2 JAMAIS\f8  \f2 transmise\f8 . \f2 Elle\f8  \f2 n'existe\f8  \f2 que\f8  \f2 sur\f8  \f2 l'\'e9cran\f8  \f2 du\f8  \f2 joueur\f8 .\f2\par
+Le\f8  \f2 seul\f8  \f2 moyen\f8  \f2 de\f8  \f2 l'obtenir\f8  ? \f2 Couler\f8  \f2 tous\f8  \f2 les\f8  \f2 navires\f8  \f2 un\f8  \f2 par\f8  \f2 un\f8 .\f2\par
+Pas\f8  \f2 de\f8  \f2 bruteforce\f8 . \f2 Pas\f8  \f2 de\f8  \f2 supercalculateur\f8 . \f2 Pas\f8  \f2 d'IA\f8 . \f2 Pas\f8  \f2 de\f8  \f2 faille\f8 .\f2\par
+Il\f8  \f2 faut\f8  \f2 JOUER\f8 . \f2 Et\f8  \f2 GAGNER\f8 .\f2\par
+\par
+En\f8  \f2 r\'e9sum\'e9\f8  :\f2\par
+L'attaquant\f8  \f2 poss\'e8de\tab\tab\tab L'attaquant\f8  \f2 peut\f8  \f2 faire\par
+Tout\f8  \f2 le\f8  \f2 trafic\f8  \f2 r\'e9seau\tab\tab\tab Rien\par
+Les\f8  \f2 meilleurs\f8  \f2 outils\tab\tab\tab Rien\par
+Du\f8  \f2 temps\f8  \f2 illimit\'e9\tab\tab\tab Rien\par
+La\f8  \f2 puissance\f8  \f2 de\f8  \f2 calcul\f8  \f2 mondiale\tab\tab Rien\par
+\'ab\f8  \f2 Intercepte\f8  \f2 tout\f8  \f2 ce\f8  \f2 que\f8  \f2 tu\f8  \f2 veux\f8 . \f2 Sans\f8  \f2 victoire\f8 , \f2 tu\f8  \f2 n'as\f8  \f2 qu'un\f8  \f2 coffre\f8 -\f2 fort\f8  \f2 sans\f8  \f2 cl\'e9\f8 . \f2\'bb\par
+\par
+\f0\u10067?\f1  \f2 FAQ\par
+Q: Puis-je choisir o\'f9 placer mes navires ?\par
+R: Non, le placement est al\'e9atoire pour garantir l'\'e9quit\'e9.\par
+Q: Que se passe-t-il si je ne mets pas de password ?\par
+R: Le champ reste vide, le vainqueur verra une cha\'eene vide.\par
+Q: La connexion ne marche pas en WAN ?\par
+R: Certains r\'e9seaux d'entreprise/universit\'e9 bloquent WebRTC. Essaie en LAN ou via un partage de connexion mobile.\par
+Q: Puis-je tricher en regardant le code JavaScript ?\par
+R: Tu verrais TA grille, pas celle de l'adversaire. Le chiffrement utilise SA grille que tu ne connais pas.\par
+\par
+\f3\u-10180?\u-8274?\f1  \f2 BON JEU !\par
+\'ab Dans cette bataille, le vrai tr\'e9sor n'est pas la victoire \f1\emdash  \f2 c'est le secret de l'autre. \'bb\par
+\par
+Version 6.0 \f1\emdash  \f2 Anti-Replay \'c9dition\par
+D\'e9velopp\'e9 avec du pur HTML/JavaScript, sans aucune librairie externe.\lang12\par
+}
+ 
